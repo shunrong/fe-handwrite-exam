@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片懒加载演示</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <a href="../../demos/scenarios.html" class="back-link">← 返回场景题</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>📷 图片懒加载演示</h1>
+            <p>基于 Intersection Observer API 的高性能图片懒加载实现</p>
+        </div>
+        
+        <div class="content">
+            <div class="demo-section">
+                <h2>🚀 功能特点</h2>
+                <div class="feature-list" id="feature-list">
+                    <!-- 功能特点将通过 JS 动态生成 -->
+                </div>
+            </div>
+            
+            <div class="stats-panel">
+                <h3>📊 加载统计</h3>
+                <div id="stats-content">
+                    <p>正在初始化...</p>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">0% 已加载</div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" onclick="imageDemo.addMoreImages()">添加更多图片</button>
+                <button class="btn success" onclick="imageDemo.scrollToBottom()">滚动到底部</button>
+                <button class="btn" onclick="imageDemo.refreshStats()">刷新统计</button>
+            </div>
+            
+            <div id="image-container" class="image-grid">
+                <!-- 图片将通过 JavaScript 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入核心功能 -->
+    <script src="core.js"></script>
+    <!-- 引入演示数据 -->
+    <script src="demo-data.js"></script>
+    <!-- 引入演示逻辑 -->
+    <script src="script.js"></script>
+</body>
+</html>

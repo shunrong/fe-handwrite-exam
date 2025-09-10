@@ -1,11 +1,465 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>fe-handwrite-exam</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端面试手写题演示 - 完整题库</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-list {
+            list-style: none;
+        }
+
+        .demo-item {
+            margin-bottom: 15px;
+        }
+
+        .demo-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .demo-link:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .demo-title {
+            font-weight: 500;
+        }
+
+        .demo-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        .demo-arrow {
+            font-size: 1.2rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: white;
+            opacity: 0.8;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .github-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .sections {
+                grid-template-columns: 1fr;
+            }
+
+            .demo-link {
+                padding: 10px 12px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <script src="./vanilla-js/throttle.js"></script>
+    <div class="container">
+        <header>
+            <h1>🚀 前端面试手写题演示</h1>
+            <p>30道精选题目，涵盖基础理论到实战应用</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">15</div>
+                <div class="stat-label">基础手写题</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">15</div>
+                <div class="stat-label">场景应用题</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">30</div>
+                <div class="stat-label">总题目数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">可运行演示</div>
+            </div>
+        </div>
+
+        <div class="sections">
+            <!-- 基础手写题 -->
+            <div class="section">
+                <h2>📚 基础手写题</h2>
+                <ul class="demo-list">
+                    <li class="demo-item">
+                        <a href="demos/call-apply-bind.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">Call/Apply/Bind</div>
+                                <div class="demo-desc">this绑定和函数调用</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="demos/debounce-throttle.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">防抖和节流</div>
+                                <div class="demo-desc">性能优化核心技术</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="demos/deep-clone.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">深拷贝实现</div>
+                                <div class="demo-desc">复杂对象克隆</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="demos/promise.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">Promise 实现</div>
+                                <div class="demo-desc">异步编程核心</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="demos/new-instanceof.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">New/Instanceof</div>
+                                <div class="demo-desc">原型链和对象创建</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="demos/array-methods.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">数组方法集合</div>
+                                <div class="demo-desc">去重、扁平化等</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="demos/utility-functions.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">工具函数库</div>
+                                <div class="demo-desc">柯里化、类型检测等</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 场景应用题 -->
+            <div class="section">
+                <h2>🎯 场景应用题</h2>
+                <ul class="demo-list">
+                    <li class="demo-item">
+                        <a href="demos/scenarios.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">场景应用题汇总</div>
+                                <div class="demo-desc">15个实战场景演示</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="scenarios/image-lazy-load/index.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">图片懒加载</div>
+                                <div class="demo-desc">性能优化组件</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="scenarios/virtual-scroll/index.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">虚拟滚动</div>
+                                <div class="demo-desc">大数据列表优化</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="scenarios/state-manager/index.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">状态管理器</div>
+                                <div class="demo-desc">类Redux状态管理</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="scenarios/drag-sort/index.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">拖拽排序</div>
+                                <div class="demo-desc">交互式列表组件</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="demos/form-validator.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">表单验证器</div>
+                                <div class="demo-desc">智能表单验证</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="demos/file-upload.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">文件上传</div>
+                                <div class="demo-desc">多功能上传组件</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="demos/search-component.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">实时搜索</div>
+                                <div class="demo-desc">智能搜索组件</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 高级组件 -->
+            <div class="section">
+                <h2>🏆 高级组件</h2>
+                <ul class="demo-list">
+                    <li class="demo-item">
+                        <a href="demos/code-editor.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">代码编辑器</div>
+                                <div class="demo-desc">语法高亮代码编辑</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="demos/rich-text-editor.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">富文本编辑器</div>
+                                <div class="demo-desc">完整编辑器功能</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="demos/image-cropper.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">图片裁剪器</div>
+                                <div class="demo-desc">Canvas图像处理</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="demos/data-visualization.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">数据可视化</div>
+                                <div class="demo-desc">SVG图表组件</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                    <li class="demo-item">
+                        <a href="demos/websocket-chat.html" class="demo-link">
+                            <div>
+                                <div class="demo-title">WebSocket聊天室</div>
+                                <div class="demo-desc">实时通信应用</div>
+                            </div>
+                            <span class="demo-arrow">→</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>💡 每个演示都包含完整的实现代码和详细注释</p>
+            <a href="https://github.com" class="github-link">
+                <span>📚</span>
+                查看完整代码
+            </a>
+            <p style="margin-top: 20px;">© 2025 前端面试手写题库 - 助你面试成功！</p>
+        </footer>
+    </div>
+
+    <script>
+        // 添加一些交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 统计动画
+            const statNumbers = document.querySelectorAll('.stat-number');
+            
+            const animateNumbers = () => {
+                statNumbers.forEach(stat => {
+                    const target = parseInt(stat.textContent);
+                    let current = 0;
+                    const increment = target / 30;
+                    
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= target) {
+                            current = target;
+                            clearInterval(timer);
+                        }
+                        
+                        if (stat.textContent.includes('%')) {
+                            stat.textContent = Math.floor(current) + '%';
+                        } else {
+                            stat.textContent = Math.floor(current);
+                        }
+                    }, 50);
+                });
+            };
+
+            // 延迟执行动画
+            setTimeout(animateNumbers, 500);
+
+            // 添加卡片悬停效果
+            const cards = document.querySelectorAll('.stat-card, .section');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
 </body>
 </html>

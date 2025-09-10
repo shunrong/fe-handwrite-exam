@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工具函数库演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .demo-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #20c997;
+        }
+        
+        .demo-section h2 {
+            color: #20c997;
+            margin-bottom: 15px;
+        }
+        
+        .test-button {
+            background: #20c997;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        
+        .test-button:hover {
+            background: #1aa085;
+        }
+        
+        .test-button.primary { background: #007bff; }
+        .test-button.success { background: #28a745; }
+        .test-button.info { background: #17a2b8; }
+        .test-button.warning { background: #ffc107; color: #212529; }
+        
+        .result {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .interactive-demo {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .function-demo {
+            background: white;
+            border: 2px solid #20c997;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .function-demo h4 {
+            margin: 0 0 10px 0;
+            color: #20c997;
+        }
+        
+        .back-link {
+            display: inline-block;
+            color: #007bff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← 返回首页</a>
+    
+    <div class="demo-container">
+        <h1>🔧 工具函数库演示</h1>
+        
+        <div class="demo-section">
+            <h2>🍛 函数柯里化</h2>
+            <p>演示函数柯里化的各种实现方式和应用场景</p>
+            
+            <button class="test-button" onclick="testBasicCurry()">基础柯里化</button>
+            <button class="test-button primary" onclick="testCurryWithPlaceholder()">占位符柯里化</button>
+            <button class="test-button success" onclick="testInfiniteCurry()">无限柯里化</button>
+            <button class="test-button info" onclick="testCurryApplication()">实际应用</button>
+            
+            <div class="result" id="curry-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>📡 发布订阅模式</h2>
+            <p>演示事件发布订阅系统的完整实现</p>
+            
+            <button class="test-button" onclick="testBasicPubSub()">基础事件</button>
+            <button class="test-button primary" onclick="testEventPriority()">事件优先级</button>
+            <button class="test-button success" onclick="testAsyncEvents()">异步事件</button>
+            <button class="test-button info" onclick="testEventNamespace()">事件命名空间</button>
+            
+            <div class="result" id="pubsub-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>💾 LRU缓存</h2>
+            <p>演示最近最少使用缓存算法的实现</p>
+            
+            <button class="test-button" onclick="testLRUBasic()">基础LRU</button>
+            <button class="test-button primary" onclick="testLRUWithTTL()">TTL支持</button>
+            <button class="test-button success" onclick="testLRUPerformance()">性能测试</button>
+            <button class="test-button info" onclick="testLRUStatistics()">统计信息</button>
+            
+            <div class="result" id="lru-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🔍 类型检测</h2>
+            <p>演示完整的JavaScript类型检测系统</p>
+            
+            <button class="test-button" onclick="testTypeDetection()">基础类型检测</button>
+            <button class="test-button primary" onclick="testAdvancedTypes()">高级类型检测</button>
+            <button class="test-button success" onclick="testTypeValidator()">类型验证器</button>
+            <button class="test-button info" onclick="testCustomTypes()">自定义类型</button>
+            
+            <div class="result" id="type-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>📄 JSON解析器</h2>
+            <p>演示JSON字符串解析和序列化的实现</p>
+            
+            <button class="test-button" onclick="testJSONStringify()">JSON序列化</button>
+            <button class="test-button primary" onclick="testJSONParse()">JSON解析</button>
+            <button class="test-button success" onclick="testJSONEdgeCases()">边界情况</button>
+            <button class="test-button info" onclick="testJSONPerformance()">性能对比</button>
+            
+            <div class="result" id="json-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>👀 观察者模式</h2>
+            <p>演示观察者模式和响应式编程</p>
+            
+            <button class="test-button" onclick="testObserverBasic()">基础观察者</button>
+            <button class="test-button primary" onclick="testConditionalNotify()">条件通知</button>
+            <button class="test-button success" onclick="testReactiveSystem()">响应式系统</button>
+            <button class="test-button info" onclick="testObserverChain()">观察者链</button>
+            
+            <div class="result" id="observer-result"></div>
+        </div>
+    </div>
+
+    <script src="../vanilla-js/curry.js"></script>
+    <script src="../vanilla-js/event-emitter.js"></script>
+    <script src="../vanilla-js/lru-cache.js"></script>
+    <script src="../vanilla-js/type-check.js"></script>
+    <script src="../vanilla-js/json-parser.js"></script>
+    <script src="../vanilla-js/observer-pattern.js"></script>
+    
+    <script>
+        // 测试基础柯里化
+        function testBasicCurry() {
+            const result = document.getElementById('curry-result');
+            
+            // 测试基础函数
+            function add(a, b, c) {
+                return a + b + c;
+            }
+            
+            function multiply(a, b, c, d) {
+                return a * b * c * d;
+            }
+            
+            result.textContent = '🍛 基础柯里化测试:\n\n';
+            
+            // 测试add函数柯里化
+            const curriedAdd = curry(add);
+            
+            result.textContent += '加法函数测试:\n';
+            result.textContent += `原函数: add(1, 2, 3) = ${add(1, 2, 3)}\n`;
+            result.textContent += `柯里化: curry(add)(1)(2)(3) = ${curriedAdd(1)(2)(3)}\n`;
+            result.textContent += `部分应用: curry(add)(1, 2)(3) = ${curriedAdd(1, 2)(3)}\n`;
+            result.textContent += `全部应用: curry(add)(1, 2, 3) = ${curriedAdd(1, 2, 3)}\n\n`;
+            
+            // 测试multiply函数柯里化
+            const curriedMultiply = curry(multiply);
+            
+            result.textContent += '乘法函数测试:\n';
+            result.textContent += `原函数: multiply(2, 3, 4, 5) = ${multiply(2, 3, 4, 5)}\n`;
+            result.textContent += `柯里化: curry(multiply)(2)(3)(4)(5) = ${curriedMultiply(2)(3)(4)(5)}\n`;
+            
+            // 保存部分应用的函数
+            const multiplyBy2 = curriedMultiply(2);
+            const multiplyBy2And3 = multiplyBy2(3);
+            
+            result.textContent += `部分应用: multiplyBy2(3)(4)(5) = ${multiplyBy2(3)(4)(5)}\n`;
+            result.textContent += `链式调用: multiplyBy2And3(4)(5) = ${multiplyBy2And3(4)(5)}\n`;
+        }
+        
+        // 测试占位符柯里化
+        function testCurryWithPlaceholder() {
+            const result = document.getElementById('curry-result');
+            
+            function subtract(a, b, c) {
+                return a - b - c;
+            }
+            
+            const curriedSubtract = curryWithPlaceholder(subtract);
+            const _ = curryWithPlaceholder.placeholder || '_';
+            
+            result.textContent = '🎯 占位符柯里化测试:\n\n';
+            
+            result.textContent += `原函数: subtract(10, 3, 2) = ${subtract(10, 3, 2)}\n`;
+            result.textContent += `占位符: curry(subtract)(_, 3, _)(10)(2) = ${curriedSubtract(_, 3, _)(10)(2)}\n`;
+            result.textContent += `多占位符: curry(subtract)(_, _, 2)(10)(3) = ${curriedSubtract(_, _, 2)(10)(3)}\n`;
+            
+            // 复杂占位符示例
+            const partialSub = curriedSubtract(_, 5, _);
+            result.textContent += `保存模板: partialSub(20)(3) = ${partialSub(20)(3)}\n`;
+            result.textContent += `             partialSub(15)(1) = ${partialSub(15)(1)}\n`;
+        }
+        
+        // 测试无限柯里化
+        function testInfiniteCurry() {
+            const result = document.getElementById('curry-result');
+            
+            result.textContent = '♾️ 无限柯里化测试:\n\n';
+            
+            const sum = curryInfinite((args) => args.reduce((a, b) => a + b, 0));
+            
+            result.textContent += `sum(1)(2)(3)() = ${sum(1)(2)(3)()}\n`;
+            result.textContent += `sum(1, 2)(3, 4)(5)() = ${sum(1, 2)(3, 4)(5)()}\n`;
+            result.textContent += `sum(1)(2)(3)(4)(5)(6)() = ${sum(1)(2)(3)(4)(5)(6)()}\n\n`;
+            
+            // 链式计算
+            const calculator = curryInfinite((args) => {
+                let result = args[0];
+                for (let i = 1; i < args.length; i += 2) {
+                    const operator = args[i];
+                    const operand = args[i + 1];
+                    if (operator === '+') result += operand;
+                    else if (operator === '-') result -= operand;
+                    else if (operator === '*') result *= operand;
+                    else if (operator === '/') result /= operand;
+                }
+                return result;
+            });
+            
+            result.textContent += `计算器示例:\n`;
+            result.textContent += `calc(10)('+')(5)('-')(3)('*')(2)() = ${calculator(10)('+')(5)('-')(3)('*')(2)()}\n`;
+        }
+        
+        // 测试发布订阅基础功能
+        function testBasicPubSub() {
+            const result = document.getElementById('pubsub-result');
+            const emitter = new EventEmitter();
+            
+            result.textContent = '📡 基础发布订阅测试:\n\n';
+            
+            // 添加监听器
+            emitter.on('test', (data) => {
+                result.textContent += `监听器1收到: ${data}\n`;
+            });
+            
+            emitter.on('test', (data) => {
+                result.textContent += `监听器2收到: ${data}\n`;
+            });
+            
+            // 触发事件
+            result.textContent += '发送事件: "Hello World"\n';
+            emitter.emit('test', 'Hello World');
+            
+            result.textContent += '\n添加一次性监听器:\n';
+            emitter.once('once-test', (data) => {
+                result.textContent += `一次性监听器: ${data}\n`;
+            });
+            
+            result.textContent += '第一次触发:\n';
+            emitter.emit('once-test', '第一次');
+            
+            result.textContent += '第二次触发:\n';
+            emitter.emit('once-test', '第二次');
+            
+            result.textContent += '(一次性监听器不会响应第二次)\n';
+        }
+        
+        // 测试LRU基础功能
+        function testLRUBasic() {
+            const result = document.getElementById('lru-result');
+            const cache = new LRUCacheMap(3); // 容量为3
+            
+            result.textContent = '💾 LRU缓存基础测试:\n\n';
+            
+            // 添加数据
+            cache.set('a', 1);
+            cache.set('b', 2);
+            cache.set('c', 3);
+            
+            result.textContent += '添加数据: a=1, b=2, c=3\n';
+            result.textContent += `缓存大小: ${cache.size}\n`;
+            result.textContent += `获取a: ${cache.get('a')}\n`;
+            
+            // 添加新数据，应该淘汰最少使用的
+            cache.set('d', 4);
+            
+            result.textContent += '\n添加数据: d=4 (容量已满，应淘汰b)\n';
+            result.textContent += `获取b: ${cache.get('b')} (应该是undefined)\n`;
+            result.textContent += `获取c: ${cache.get('c')}\n`;
+            result.textContent += `获取d: ${cache.get('d')}\n`;
+            
+            // 显示当前所有键
+            result.textContent += `\n当前所有键: [${cache.keys().join(', ')}]\n`;
+            
+            // 测试删除
+            cache.delete('a');
+            result.textContent += `删除a后大小: ${cache.size}\n`;
+            
+            // 清空
+            cache.clear();
+            result.textContent += `清空后大小: ${cache.size}\n`;
+        }
+        
+        // 测试类型检测
+        function testTypeDetection() {
+            const result = document.getElementById('type-result');
+            
+            const testValues = [
+                42,
+                'hello',
+                true,
+                null,
+                undefined,
+                [],
+                {},
+                new Date(),
+                /regex/,
+                function() {},
+                () => {},
+                Symbol('test'),
+                new Map(),
+                new Set(),
+                new Error('test'),
+                document.createElement('div')
+            ];
+            
+            result.textContent = '🔍 类型检测测试:\n\n';
+            
+            testValues.forEach(value => {
+                const type = getTypeComplete(value);
+                const jsType = typeof value;
+                
+                result.textContent += `${String(value).slice(0, 20).padEnd(20)} | typeof: ${jsType.padEnd(8)} | 检测: ${type}\n`;
+            });
+            
+            result.textContent += '\n高级类型检测:\n';
+            result.textContent += `空对象: ${TypeChecker.isPlainObject({})}\n`;
+            result.textContent += `数组对象: ${TypeChecker.isPlainObject([])}\n`;
+            result.textContent += `空数组: ${TypeChecker.isEmpty([])}\n`;
+            result.textContent += `空字符串: ${TypeChecker.isEmpty('')}\n`;
+            result.textContent += `Promise: ${TypeChecker.isPromise(Promise.resolve())}\n`;
+            result.textContent += `类数组: ${TypeChecker.isArrayLike({length: 3})}\n`;
+        }
+        
+        // 测试JSON序列化
+        function testJSONStringify() {
+            const result = document.getElementById('json-result');
+            
+            const testObject = {
+                string: 'hello',
+                number: 42,
+                boolean: true,
+                null: null,
+                undefined: undefined,
+                array: [1, 2, 3],
+                object: { nested: 'value' },
+                func: function() { return 'test'; },
+                date: new Date('2023-01-01'),
+                regexp: /test/g,
+                symbol: Symbol('test')
+            };
+            
+            result.textContent = 'JSON序列化测试:\n\n';
+            
+            try {
+                const native = JSON.stringify(testObject, null, 2);
+                const custom = myStringify(testObject, null, 2);
+                
+                result.textContent += '原生JSON.stringify:\n';
+                result.textContent += native + '\n\n';
+                
+                result.textContent += '自实现myStringify:\n';
+                result.textContent += custom + '\n\n';
+                
+                result.textContent += `结果一致: ${native === custom ? '✅' : '❌'}\n`;
+            } catch (error) {
+                result.textContent += `❌ 测试失败: ${error.message}\n`;
+            }
+        }
+        
+        // 测试观察者模式
+        function testObserverBasic() {
+            const result = document.getElementById('observer-result');
+            
+            const subject = new Subject();
+            
+            result.textContent = '👀 观察者模式测试:\n\n';
+            
+            // 创建观察者
+            const observer1 = new Observer('观察者1', (data) => {
+                result.textContent += `观察者1收到通知: ${data}\n`;
+            });
+            
+            const observer2 = new Observer('观察者2', (data) => {
+                result.textContent += `观察者2收到通知: ${data}\n`;
+            });
+            
+            // 订阅
+            subject.subscribe(observer1);
+            subject.subscribe(observer2);
+            
+            result.textContent += `当前观察者数量: ${subject.observers.length}\n\n`;
+            
+            // 通知
+            result.textContent += '发送通知: "测试消息"\n';
+            subject.notify('测试消息');
+            
+            result.textContent += '\n取消观察者1的订阅\n';
+            subject.unsubscribe(observer1);
+            
+            result.textContent += '再次发送通知: "第二条消息"\n';
+            subject.notify('第二条消息');
+        }
+        
+        // 其他简化的测试函数
+        function testCurryApplication() {
+            const result = document.getElementById('curry-result');
+            
+            // 实际应用示例
+            const map = curry((fn, arr) => arr.map(fn));
+            const filter = curry((fn, arr) => arr.filter(fn));
+            
+            const numbers = [1, 2, 3, 4, 5];
+            
+            const double = x => x * 2;
+            const isEven = x => x % 2 === 0;
+            
+            result.textContent = '🚀 柯里化实际应用:\n\n';
+            result.textContent += `原数组: [${numbers.join(', ')}]\n`;
+            result.textContent += `映射加倍: [${map(double)(numbers).join(', ')}]\n`;
+            result.textContent += `过滤偶数: [${filter(isEven)(numbers).join(', ')}]\n`;
+            
+            // 函数组合
+            const doubleEvens = (arr) => map(double)(filter(isEven)(arr));
+            result.textContent += `组合操作: [${doubleEvens(numbers).join(', ')}]\n`;
+        }
+        
+        function testEventPriority() {
+            const result = document.getElementById('pubsub-result');
+            result.textContent = '📡 事件优先级功能需要EventEmitter支持priority参数\n';
+            result.textContent += '这是一个高级功能的演示占位符\n';
+        }
+        
+        function testLRUWithTTL() {
+            const result = document.getElementById('lru-result');
+            result.textContent = '⏰ TTL(生存时间)功能演示\n';
+            result.textContent += '这需要LRU缓存支持过期时间功能\n';
+        }
+        
+        function testAdvancedTypes() {
+            const result = document.getElementById('type-result');
+            
+            // 测试复杂类型检测
+            const validator = new TypeValidator();
+            
+            result.textContent = '🔬 高级类型检测:\n\n';
+            
+            // 定义验证规则
+            const userSchema = {
+                name: 'string',
+                age: 'number',
+                email: 'string',
+                active: 'boolean'
+            };
+            
+            const testUser = {
+                name: 'John',
+                age: 30,
+                email: 'john@example.com',
+                active: true
+            };
+            
+            const invalidUser = {
+                name: 'Jane',
+                age: '25',  // 错误类型
+                email: 'jane@example.com',
+                active: 'yes'  // 错误类型
+            };
+            
+            result.textContent += '验证有效用户:\n';
+            try {
+                const valid = validator.validate(testUser, userSchema);
+                result.textContent += `结果: ${valid ? '✅ 有效' : '❌ 无效'}\n`;
+            } catch (error) {
+                result.textContent += `❌ 验证失败: ${error.message}\n`;
+            }
+            
+            result.textContent += '\n验证无效用户:\n';
+            try {
+                const valid = validator.validate(invalidUser, userSchema);
+                result.textContent += `结果: ${valid ? '✅ 有效' : '❌ 无效'}\n`;
+            } catch (error) {
+                result.textContent += `❌ 验证失败: ${error.message}\n`;
+            }
+        }
+        
+        function testJSONParse() {
+            const result = document.getElementById('json-result');
+            
+            const jsonString = '{"name":"test","value":42,"nested":{"array":[1,2,3]}}';
+            
+            result.textContent = 'JSON解析测试:\n\n';
+            
+            try {
+                const native = JSON.parse(jsonString);
+                const custom = myParse(jsonString);
+                
+                result.textContent += `原生解析: ${JSON.stringify(native)}\n`;
+                result.textContent += `自实现解析: ${JSON.stringify(custom)}\n`;
+                result.textContent += `结果一致: ${JSON.stringify(native) === JSON.stringify(custom) ? '✅' : '❌'}\n`;
+            } catch (error) {
+                result.textContent += `❌ 解析失败: ${error.message}\n`;
+            }
+        }
+        
+        function testReactiveSystem() {
+            const result = document.getElementById('observer-result');
+            result.textContent = '⚡ 响应式系统演示\n';
+            result.textContent += '这是一个基于观察者模式的响应式系统示例\n';
+            
+            // 简单的响应式实现
+            const reactive = (obj) => {
+                const observers = new Map();
+                
+                return new Proxy(obj, {
+                    set(target, key, value) {
+                        const oldValue = target[key];
+                        target[key] = value;
+                        
+                        if (observers.has(key)) {
+                            observers.get(key).forEach(callback => {
+                                callback(value, oldValue);
+                            });
+                        }
+                        
+                        return true;
+                    },
+                    
+                    get(target, key) {
+                        if (key === '$watch') {
+                            return (prop, callback) => {
+                                if (!observers.has(prop)) {
+                                    observers.set(prop, []);
+                                }
+                                observers.get(prop).push(callback);
+                            };
+                        }
+                        return target[key];
+                    }
+                });
+            };
+            
+            const data = reactive({ count: 0, name: 'test' });
+            
+            data.$watch('count', (newVal, oldVal) => {
+                result.textContent += `count变化: ${oldVal} -> ${newVal}\n`;
+            });
+            
+            result.textContent += '\n开始测试响应式:\n';
+            data.count = 1;
+            data.count = 2;
+            data.name = 'updated';
+        }
+        
+        // 页面加载提示
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 工具函数库演示页面已加载');
+            console.log('💡 点击测试按钮查看各种工具函数的实现效果');
+            
+            // 添加说明
+            document.querySelector('.demo-container').insertAdjacentHTML('afterbegin', `
+                <div style="background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                    <strong>💡 演示说明：</strong>
+                    本演示涵盖了柯里化、发布订阅、LRU缓存、类型检测、JSON解析、观察者模式等
+                    常用工具函数的实现和应用。这些都是前端开发中的重要技能！
+                </div>
+            `);
+        });
+    </script>
+</body>
+</html>

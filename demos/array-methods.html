@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数组方法集合演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .demo-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #fd7e14;
+        }
+        
+        .demo-section h2 {
+            color: #fd7e14;
+            margin-bottom: 15px;
+        }
+        
+        .test-button {
+            background: #fd7e14;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        
+        .test-button:hover {
+            background: #e55a00;
+        }
+        
+        .test-button.primary {
+            background: #007bff;
+        }
+        
+        .test-button.primary:hover {
+            background: #0056b3;
+        }
+        
+        .test-button.success {
+            background: #28a745;
+        }
+        
+        .test-button.success:hover {
+            background: #1e7e34;
+        }
+        
+        .test-button.info {
+            background: #17a2b8;
+        }
+        
+        .test-button.info:hover {
+            background: #138496;
+        }
+        
+        .result {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .array-display {
+            background: white;
+            border: 2px solid #fd7e14;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .array-display h4 {
+            margin: 0 0 10px 0;
+            color: #fd7e14;
+        }
+        
+        .array-item {
+            display: inline-block;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        
+        .array-item.highlighted {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .comparison-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+        
+        .comparison-item h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        
+        .performance-section {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .performance-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .performance-item {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            border: 1px solid #bbdefb;
+        }
+        
+        .performance-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        
+        .performance-label {
+            font-size: 12px;
+            color: #1976d2;
+        }
+        
+        .back-link {
+            display: inline-block;
+            color: #007bff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            background: #007bff;
+            color: white;
+        }
+        
+        .interactive-demo {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .interactive-demo h4 {
+            margin: 0 0 15px 0;
+            color: #495057;
+        }
+        
+        .input-group {
+            margin: 10px 0;
+        }
+        
+        .input-group label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+        }
+        
+        .input-group input {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 200px;
+        }
+        
+        .input-group button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← 返回首页</a>
+    
+    <div class="demo-container">
+        <h1>📚 数组方法集合演示</h1>
+        
+        <div class="demo-section">
+            <h2>🎯 数组去重演示</h2>
+            <p>演示10种不同的数组去重方法，包括处理对象和NaN的情况</p>
+            
+            <button class="test-button" onclick="testBasicUnique()">基础去重</button>
+            <button class="test-button primary" onclick="testComplexUnique()">复杂去重</button>
+            <button class="test-button success" onclick="testObjectUnique()">对象去重</button>
+            <button class="test-button info" onclick="testPerformanceUnique()">性能对比</button>
+            
+            <div class="interactive-demo">
+                <h4>🎮 交互式去重测试</h4>
+                <div class="input-group">
+                    <label>输入数组:</label>
+                    <input type="text" id="unique-input" placeholder="1,2,2,3,3,4" value="1,2,2,3,3,4">
+                    <button onclick="customUniqueTest()">测试去重</button>
+                </div>
+                <div class="array-display" id="unique-display" style="display: none;">
+                    <h4>去重结果对比</h4>
+                    <div id="unique-results"></div>
+                </div>
+            </div>
+            
+            <div class="result" id="unique-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🔄 数组扁平化演示</h2>
+            <p>演示多种数组扁平化方法：递归、迭代、函数式编程等</p>
+            
+            <button class="test-button" onclick="testBasicFlatten()">基础扁平化</button>
+            <button class="test-button primary" onclick="testDepthFlatten()">指定深度</button>
+            <button class="test-button success" onclick="testAsyncFlatten()">异步扁平化</button>
+            <button class="test-button info" onclick="testFlattenMethods()">方法对比</button>
+            
+            <div class="interactive-demo">
+                <h4>🎮 交互式扁平化测试</h4>
+                <div class="input-group">
+                    <label>嵌套深度:</label>
+                    <input type="number" id="flatten-depth" value="2" min="1" max="10">
+                    <button onclick="generateNestedArray()">生成嵌套数组</button>
+                    <button onclick="testCustomFlatten()">测试扁平化</button>
+                </div>
+                <div class="array-display" id="flatten-display" style="display: none;">
+                    <h4>扁平化过程演示</h4>
+                    <div id="flatten-steps"></div>
+                </div>
+            </div>
+            
+            <div class="result" id="flatten-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🧮 数组计算方法</h2>
+            <p>演示数组的各种计算和统计方法</p>
+            
+            <button class="test-button" onclick="testArrayStats()">统计计算</button>
+            <button class="test-button primary" onclick="testArrayGrouping()">分组操作</button>
+            <button class="test-button success" onclick="testArrayMath()">数学运算</button>
+            <button class="test-button info" onclick="testArraySearch()">搜索方法</button>
+            
+            <div class="result" id="calc-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>⚡ 性能对比测试</h2>
+            <p>对比不同数组方法的性能表现</p>
+            
+            <button class="test-button" onclick="runArrayPerformanceTest()">运行性能测试</button>
+            
+            <div class="performance-section">
+                <h3>📊 性能测试结果</h3>
+                <div class="performance-results" id="performance-chart"></div>
+                <div class="result" id="performance-details"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../vanilla-js/array-unique.js"></script>
+    <script src="../vanilla-js/array-flatten.js"></script>
+    
+    <script>
+        // 测试基础去重
+        function testBasicUnique() {
+            const result = document.getElementById('unique-result');
+            
+            const testArrays = [
+                [1, 2, 2, 3, 3, 4],
+                ['a', 'b', 'b', 'c'],
+                [1, '1', 2, '2'],
+                [true, false, true, 1, 0],
+                [NaN, NaN, null, null, undefined, undefined]
+            ];
+            
+            result.textContent = '🎯 基础去重测试:\n\n';
+            
+            testArrays.forEach((arr, index) => {
+                result.textContent += `测试${index + 1}: [${arr.join(', ')}]\n`;
+                
+                // 测试不同方法
+                const methods = [
+                    { name: 'Set方法', func: uniqueSet },
+                    { name: 'Filter方法', func: uniqueFilter },
+                    { name: 'Reduce方法', func: uniqueReduce },
+                    { name: 'Map方法', func: uniqueMap }
+                ];
+                
+                methods.forEach(method => {
+                    try {
+                        const result = method.func(arr);
+                        result.textContent += `  ${method.name}: [${result.join(', ')}]\n`;
+                    } catch (error) {
+                        result.textContent += `  ${method.name}: 错误 - ${error.message}\n`;
+                    }
+                });
+                
+                result.textContent += '\n';
+            });
+        }
+        
+        // 测试复杂去重
+        function testComplexUnique() {
+            const result = document.getElementById('unique-result');
+            
+            const complexArray = [
+                1, 1, '1', '1',
+                true, true, 1,
+                false, false, 0,
+                null, null, undefined, undefined,
+                NaN, NaN,
+                {}, {},
+                [], [],
+                new Date('2023-01-01'), new Date('2023-01-01')
+            ];
+            
+            result.textContent = '🧩 复杂去重测试:\n\n';
+            result.textContent += `原数组长度: ${complexArray.length}\n`;
+            result.textContent += `原数组: [${complexArray.map(item => 
+                typeof item === 'object' ? JSON.stringify(item) : String(item)
+            ).join(', ')}]\n\n`;
+            
+            const methods = [
+                { name: 'Set方法', func: uniqueSet },
+                { name: '严格相等', func: uniqueStrictEqual },
+                { name: '处理NaN', func: uniqueWithNaN },
+                { name: '类型敏感', func: uniqueTypeSensitive }
+            ];
+            
+            methods.forEach(method => {
+                try {
+                    const start = performance.now();
+                    const uniqueResult = method.func(complexArray);
+                    const time = performance.now() - start;
+                    
+                    result.textContent += `${method.name}:\n`;
+                    result.textContent += `  结果长度: ${uniqueResult.length}\n`;
+                    result.textContent += `  执行时间: ${time.toFixed(3)}ms\n`;
+                    result.textContent += `  结果: [${uniqueResult.map(item => 
+                        typeof item === 'object' ? JSON.stringify(item) : String(item)
+                    ).slice(0, 10).join(', ')}${uniqueResult.length > 10 ? '...' : ''}]\n\n`;
+                } catch (error) {
+                    result.textContent += `${method.name}: 错误 - ${error.message}\n\n`;
+                }
+            });
+        }
+        
+        // 测试对象去重
+        function testObjectUnique() {
+            const result = document.getElementById('unique-result');
+            
+            const objectArray = [
+                { id: 1, name: 'Alice' },
+                { id: 2, name: 'Bob' },
+                { id: 1, name: 'Alice' },
+                { id: 3, name: 'Charlie' },
+                { id: 2, name: 'Bob' }
+            ];
+            
+            result.textContent = '📦 对象去重测试:\n\n';
+            result.textContent += '原数组:\n';
+            objectArray.forEach((obj, index) => {
+                result.textContent += `  ${index}: ${JSON.stringify(obj)}\n`;
+            });
+            
+            result.textContent += '\n去重方法:\n';
+            
+            // 按JSON字符串去重
+            const jsonUnique = uniqueByJSON(objectArray);
+            result.textContent += `JSON方法: ${jsonUnique.length}个对象\n`;
+            jsonUnique.forEach((obj, index) => {
+                result.textContent += `  ${index}: ${JSON.stringify(obj)}\n`;
+            });
+            
+            // 按属性去重
+            const keyUnique = uniqueByKey(objectArray, 'id');
+            result.textContent += `\n按ID去重: ${keyUnique.length}个对象\n`;
+            keyUnique.forEach((obj, index) => {
+                result.textContent += `  ${index}: ${JSON.stringify(obj)}\n`;
+            });
+        }
+        
+        // 自定义去重测试
+        function customUniqueTest() {
+            const input = document.getElementById('unique-input').value;
+            const display = document.getElementById('unique-display');
+            const results = document.getElementById('unique-results');
+            
+            try {
+                // 解析输入
+                const array = input.split(',').map(item => {
+                    const trimmed = item.trim();
+                    if (trimmed === 'NaN') return NaN;
+                    if (trimmed === 'null') return null;
+                    if (trimmed === 'undefined') return undefined;
+                    if (trimmed === 'true') return true;
+                    if (trimmed === 'false') return false;
+                    if (!isNaN(trimmed) && trimmed !== '') return Number(trimmed);
+                    return trimmed;
+                });
+                
+                // 测试不同方法
+                const methods = [
+                    { name: 'Set方法', func: uniqueSet, color: '#007bff' },
+                    { name: 'Filter方法', func: uniqueFilter, color: '#28a745' },
+                    { name: 'Reduce方法', func: uniqueReduce, color: '#ffc107' },
+                    { name: 'For循环', func: uniqueForLoop, color: '#dc3545' }
+                ];
+                
+                results.innerHTML = '';
+                
+                methods.forEach(method => {
+                    const methodResult = method.func(array);
+                    const div = document.createElement('div');
+                    div.style.margin = '10px 0';
+                    div.innerHTML = `
+                        <strong style="color: ${method.color}">${method.name}:</strong>
+                        <div style="margin: 5px 0;">
+                            ${methodResult.map(item => `<span class="array-item">${String(item)}</span>`).join('')}
+                        </div>
+                        <small>长度: ${methodResult.length}</small>
+                    `;
+                    results.appendChild(div);
+                });
+                
+                display.style.display = 'block';
+                
+            } catch (error) {
+                alert('输入格式错误: ' + error.message);
+            }
+        }
+        
+        // 测试基础扁平化
+        function testBasicFlatten() {
+            const result = document.getElementById('flatten-result');
+            
+            const testArrays = [
+                [1, [2, 3], 4],
+                [1, [2, [3, 4]], 5],
+                [[1, 2], [3, [4, [5]]]],
+                [1, , 3, [4, , 6]],  // 稀疏数组
+                []
+            ];
+            
+            result.textContent = '🔄 基础扁平化测试:\n\n';
+            
+            testArrays.forEach((arr, index) => {
+                result.textContent += `测试${index + 1}: ${JSON.stringify(arr)}\n`;
+                
+                try {
+                    const recursive = flattenRecursive(arr);
+                    const iterative = flattenIterative(arr);
+                    const reduce = flattenReduce(arr);
+                    
+                    result.textContent += `  递归方法: ${JSON.stringify(recursive)}\n`;
+                    result.textContent += `  迭代方法: ${JSON.stringify(iterative)}\n`;
+                    result.textContent += `  Reduce方法: ${JSON.stringify(reduce)}\n`;
+                    
+                    const allSame = JSON.stringify(recursive) === JSON.stringify(iterative) &&
+                                   JSON.stringify(iterative) === JSON.stringify(reduce);
+                    result.textContent += `  结果一致: ${allSame ? '✅' : '❌'}\n\n`;
+                } catch (error) {
+                    result.textContent += `  错误: ${error.message}\n\n`;
+                }
+            });
+        }
+        
+        // 测试指定深度扁平化
+        function testDepthFlatten() {
+            const result = document.getElementById('flatten-result');
+            
+            const deepArray = [1, [2, [3, [4, [5, [6]]]]]];
+            
+            result.textContent = '📏 指定深度扁平化测试:\n\n';
+            result.textContent += `原数组: ${JSON.stringify(deepArray)}\n\n`;
+            
+            for (let depth = 1; depth <= 5; depth++) {
+                const flattened = flattenRecursive(deepArray, depth);
+                result.textContent += `深度${depth}: ${JSON.stringify(flattened)}\n`;
+            }
+            
+            const fullyFlattened = flattenRecursive(deepArray, Infinity);
+            result.textContent += `完全扁平化: ${JSON.stringify(fullyFlattened)}\n`;
+        }
+        
+        // 生成嵌套数组
+        function generateNestedArray() {
+            const depth = parseInt(document.getElementById('flatten-depth').value);
+            const display = document.getElementById('flatten-display');
+            const steps = document.getElementById('flatten-steps');
+            
+            // 生成指定深度的嵌套数组
+            function generateNested(currentDepth) {
+                if (currentDepth <= 0) {
+                    return Math.floor(Math.random() * 10);
+                }
+                
+                const length = Math.floor(Math.random() * 3) + 2;
+                const array = [];
+                
+                for (let i = 0; i < length; i++) {
+                    if (Math.random() > 0.5) {
+                        array.push(generateNested(currentDepth - 1));
+                    } else {
+                        array.push(Math.floor(Math.random() * 10));
+                    }
+                }
+                
+                return array;
+            }
+            
+            const nestedArray = generateNested(depth);
+            
+            steps.innerHTML = `
+                <div><strong>生成的嵌套数组:</strong></div>
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0; font-family: monospace;">
+                    ${JSON.stringify(nestedArray, null, 2)}
+                </div>
+                <div><strong>数组深度:</strong> ${depth}</div>
+            `;
+            
+            // 保存到全局变量供测试使用
+            window.currentNestedArray = nestedArray;
+            display.style.display = 'block';
+        }
+        
+        // 测试自定义扁平化
+        function testCustomFlatten() {
+            if (!window.currentNestedArray) {
+                alert('请先生成嵌套数组');
+                return;
+            }
+            
+            const steps = document.getElementById('flatten-steps');
+            const array = window.currentNestedArray;
+            
+            // 演示不同深度的扁平化过程
+            let html = steps.innerHTML;
+            html += '<div style="margin-top: 20px;"><strong>扁平化过程:</strong></div>';
+            
+            for (let depth = 1; depth <= 5; depth++) {
+                try {
+                    const result = flattenRecursive(array, depth);
+                    html += `
+                        <div style="margin: 10px 0; padding: 10px; background: #e9ecef; border-radius: 5px;">
+                            <strong>深度 ${depth}:</strong> ${JSON.stringify(result)}
+                        </div>
+                    `;
+                    
+                    // 如果已经完全扁平化，停止
+                    if (JSON.stringify(result) === JSON.stringify(flattenRecursive(array, depth + 1))) {
+                        html += '<div style="color: #28a745; font-weight: bold;">✅ 已完全扁平化</div>';
+                        break;
+                    }
+                } catch (error) {
+                    html += `<div style="color: #dc3545;">❌ 深度 ${depth}: ${error.message}</div>`;
+                }
+            }
+            
+            steps.innerHTML = html;
+        }
+        
+        // 测试数组统计
+        function testArrayStats() {
+            const result = document.getElementById('calc-result');
+            
+            const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+            const mixed = [1, 'a', 2, 'b', 3, true, false, null];
+            
+            result.textContent = '📊 数组统计测试:\n\n';
+            
+            // 数字数组统计
+            result.textContent += `数字数组: [${numbers.join(', ')}]\n`;
+            result.textContent += `  总和: ${numbers.reduce((a, b) => a + b, 0)}\n`;
+            result.textContent += `  平均值: ${(numbers.reduce((a, b) => a + b, 0) / numbers.length).toFixed(2)}\n`;
+            result.textContent += `  最大值: ${Math.max(...numbers)}\n`;
+            result.textContent += `  最小值: ${Math.min(...numbers)}\n`;
+            result.textContent += `  中位数: ${getMedian(numbers)}\n\n`;
+            
+            // 混合数组统计
+            result.textContent += `混合数组: [${mixed.map(x => JSON.stringify(x)).join(', ')}]\n`;
+            result.textContent += `  数字: ${mixed.filter(x => typeof x === 'number').length}个\n`;
+            result.textContent += `  字符串: ${mixed.filter(x => typeof x === 'string').length}个\n`;
+            result.textContent += `  布尔值: ${mixed.filter(x => typeof x === 'boolean').length}个\n`;
+            result.textContent += `  null/undefined: ${mixed.filter(x => x == null).length}个\n`;
+        }
+        
+        // 获取中位数
+        function getMedian(arr) {
+            const sorted = [...arr].sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            return sorted.length % 2 === 0 
+                ? (sorted[mid - 1] + sorted[mid]) / 2
+                : sorted[mid];
+        }
+        
+        // 测试数组分组
+        function testArrayGrouping() {
+            const result = document.getElementById('calc-result');
+            
+            const people = [
+                { name: 'Alice', age: 25, city: 'Beijing' },
+                { name: 'Bob', age: 30, city: 'Shanghai' },
+                { name: 'Charlie', age: 25, city: 'Beijing' },
+                { name: 'David', age: 30, city: 'Shanghai' },
+                { name: 'Eve', age: 35, city: 'Guangzhou' }
+            ];
+            
+            result.textContent = '👥 数组分组测试:\n\n';
+            
+            // 按年龄分组
+            const byAge = groupBy(people, 'age');
+            result.textContent += '按年龄分组:\n';
+            Object.entries(byAge).forEach(([age, group]) => {
+                result.textContent += `  ${age}岁: ${group.map(p => p.name).join(', ')}\n`;
+            });
+            
+            // 按城市分组
+            const byCity = groupBy(people, 'city');
+            result.textContent += '\n按城市分组:\n';
+            Object.entries(byCity).forEach(([city, group]) => {
+                result.textContent += `  ${city}: ${group.map(p => p.name).join(', ')}\n`;
+            });
+        }
+        
+        // 分组函数
+        function groupBy(array, key) {
+            return array.reduce((groups, item) => {
+                const value = item[key];
+                if (!groups[value]) {
+                    groups[value] = [];
+                }
+                groups[value].push(item);
+                return groups;
+            }, {});
+        }
+        
+        // 运行数组性能测试
+        function runArrayPerformanceTest() {
+            const chart = document.getElementById('performance-chart');
+            const details = document.getElementById('performance-details');
+            
+            details.textContent = '开始性能测试...\n';
+            
+            // 生成测试数据
+            const smallArray = Array.from({length: 1000}, (_, i) => Math.floor(Math.random() * 100));
+            const largeArray = Array.from({length: 100000}, (_, i) => Math.floor(Math.random() * 1000));
+            
+            const tests = [
+                {
+                    name: '小数组去重',
+                    data: smallArray,
+                    methods: [
+                        { name: 'Set', func: uniqueSet },
+                        { name: 'Filter', func: uniqueFilter },
+                        { name: 'Reduce', func: uniqueReduce }
+                    ]
+                },
+                {
+                    name: '大数组去重',
+                    data: largeArray,
+                    methods: [
+                        { name: 'Set', func: uniqueSet },
+                        { name: 'Filter', func: uniqueFilter }
+                    ]
+                }
+            ];
+            
+            const results = [];
+            
+            tests.forEach(test => {
+                details.textContent += `\n🧪 ${test.name} (${test.data.length} 项):\n`;
+                
+                test.methods.forEach(method => {
+                    const start = performance.now();
+                    const result = method.func(test.data);
+                    const time = performance.now() - start;
+                    
+                    results.push({
+                        test: test.name,
+                        method: method.name,
+                        time: time
+                    });
+                    
+                    details.textContent += `  ${method.name}: ${time.toFixed(2)}ms (${result.length} 项)\n`;
+                });
+            });
+            
+            // 显示性能图表
+            chart.innerHTML = results.map(result => `
+                <div class="performance-item">
+                    <div class="performance-value">${result.time.toFixed(1)}ms</div>
+                    <div class="performance-label">${result.method}</div>
+                    <div style="font-size: 10px; color: #666;">${result.test}</div>
+                </div>
+            `).join('');
+            
+            details.textContent += '\n✅ 性能测试完成！';
+        }
+        
+        // 页面加载提示
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📚 数组方法集合演示页面已加载');
+            console.log('💡 点击测试按钮查看各种数组操作方法');
+            
+            // 添加说明
+            document.querySelector('.demo-container').insertAdjacentHTML('afterbegin', `
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                    <strong>💡 演示说明：</strong>
+                    本演示涵盖了数组去重、扁平化、统计计算等常用操作的多种实现方法。
+                    包括性能对比和交互式测试，帮助你理解不同方法的适用场景。
+                </div>
+            `);
+        });
+    </script>
+</body>
+</html>

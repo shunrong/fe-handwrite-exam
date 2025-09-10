@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无限滚动加载演示</title>
+    <link rel="stylesheet" href="../../shared/css/base.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <a href="../../demos/scenarios.html" class="back-link">← 返回场景题</a>
+        
+        <div class="header">
+            <h1>♾️ 无限滚动加载演示</h1>
+            <p>智能分页加载与性能优化的完美结合</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="content-grid">
+                <!-- 文章列表区域 -->
+                <div class="article-section">
+                    <div class="article-header">
+                        <h2>📰 热门文章</h2>
+                        <div class="article-count" id="article-count">0 篇文章</div>
+                    </div>
+                    <div class="article-list" id="article-list">
+                        <!-- 文章列表将动态插入这里 -->
+                    </div>
+                </div>
+                
+                <!-- 侧边栏控制面板 -->
+                <div class="sidebar">
+                    <!-- 控制面板 -->
+                    <div class="controls-panel">
+                        <h3>⚙️ 控制面板</h3>
+                        
+                        <!-- 功能开关 -->
+                        <div class="checkbox-group" id="checkbox-group">
+                            <!-- 开关将通过 JS 动态生成 -->
+                        </div>
+                        
+                        <!-- 参数调节 -->
+                        <div id="slider-controls">
+                            <!-- 滑块控件将通过 JS 动态生成 -->
+                        </div>
+                        
+                        <!-- 操作按钮 -->
+                        <div class="button-group">
+                            <button class="btn btn-success" id="load-btn">手动加载</button>
+                            <button class="btn btn-danger" id="reset-btn">重置列表</button>
+                            <button class="btn btn-secondary" id="scroll-top-btn">回到顶部</button>
+                            <button class="btn btn-primary" id="scroll-bottom-btn">滚动到底</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 统计面板 -->
+                    <div class="stats-panel">
+                        <h3>📊 加载统计</h3>
+                        
+                        <div id="status-indicator" class="status-indicator status-idle">
+                            准备就绪
+                        </div>
+                        
+                        <div class="progress-bar" id="progress-container" style="display: none;">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        
+                        <div class="stat-grid" id="stat-grid">
+                            <!-- 统计信息将通过 JS 动态生成 -->
+                        </div>
+                        
+                        <div id="error-info" style="display: none; color: #dc3545; font-size: 14px; margin-top: 10px;">
+                            <!-- 错误信息将显示在这里 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入核心功能 -->
+    <script src="core.js"></script>
+    <!-- 引入演示数据 -->
+    <script src="demo-data.js"></script>
+    <!-- 引入演示逻辑 -->
+    <script src="script.js"></script>
+</body>
+</html>

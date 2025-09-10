@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>场景应用题演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .demo-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .demo-card h3 {
+            color: #333;
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+        
+        .demo-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        
+        .demo-link {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+        
+        .demo-link:hover {
+            background: #0056b3;
+        }
+        
+        .demo-link.disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-partial {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-planned {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5rem;
+        }
+        
+        .header p {
+            margin: 0;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .back-link {
+            display: inline-block;
+            color: #007bff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            background: #007bff;
+            color: white;
+        }
+        
+        .category {
+            margin: 40px 0 20px 0;
+            padding: 15px 20px;
+            background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%);
+            border-left: 4px solid #007bff;
+            border-radius: 5px;
+        }
+        
+        .category h2 {
+            margin: 0;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← 返回首页</a>
+    
+    <div class="header">
+        <h1>🎯 场景应用题演示</h1>
+        <p>实际业务场景中的前端技术应用</p>
+    </div>
+    
+    <div class="category">
+        <h2>🚀 性能优化类</h2>
+    </div>
+    
+    <div class="demo-grid">
+        <div class="demo-card">
+            <h3>📷 图片懒加载
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>使用Intersection Observer API实现高性能的图片懒加载，支持响应式图片、错误处理和加载动画。</p>
+            <p><strong>技术要点：</strong>Intersection Observer、响应式图片、性能优化</p>
+            <a href="../scenarios/image-lazy-load/index.html" class="demo-link">查看演示</a>
+        </div>
+        
+        <div class="demo-card">
+            <h3>📋 虚拟滚动列表
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>针对大数据量列表的虚拟化滚动实现，支持动态高度、缓冲区域和性能监控。</p>
+            <p><strong>技术要点：</strong>虚拟化、大数据渲染、内存优化</p>
+            <a href="../scenarios/virtual-scroll/index.html" class="demo-link">查看演示</a>
+        </div>
+        
+        <div class="demo-card">
+            <h3>♾️ 无限滚动加载
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>自动加载更多内容的无限滚动组件，支持加载状态、错误处理和数据去重。</p>
+            <p><strong>技术要点：</strong>Intersection Observer、分页加载、状态管理</p>
+            <a href="../scenarios/infinite-scroll/index.html" class="demo-link">查看演示</a>
+        </div>
+    </div>
+    
+    <div class="category">
+        <h2>🏗️ 架构设计类</h2>
+    </div>
+    
+    <div class="demo-grid">
+        <div class="demo-card">
+            <h3>🗃️ 状态管理器
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>类Redux的状态管理实现，支持中间件、异步Action、时间旅行和状态持久化。</p>
+            <p><strong>技术要点：</strong>状态管理、中间件、函数式编程</p>
+            <a href="state-manager.html" class="demo-link">查看演示</a>
+        </div>
+        
+        <div class="demo-card">
+            <h3>🌐 请求管理器
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>智能的HTTP请求管理，包含缓存、防抖、重试机制和并发控制。</p>
+            <p><strong>技术要点：</strong>请求缓存、指数退避、并发控制</p>
+            <a href="request-manager.html" class="demo-link">查看演示</a>
+        </div>
+        
+        <div class="demo-card">
+            <h3>📄 模板引擎
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>轻量级模板引擎实现，支持变量插值、条件渲染、循环和过滤器。</p>
+            <p><strong>技术要点：</strong>模板解析、XSS防护、性能优化</p>
+            <a href="template-engine.html" class="demo-link">查看演示</a>
+        </div>
+    </div>
+    
+    <div class="category">
+        <h2>🎮 交互体验类</h2>
+    </div>
+    
+    <div class="demo-grid">
+        <div class="demo-card">
+            <h3>🎯 拖拽排序
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>支持多种拖拽模式的排序组件，兼容鼠标和触摸事件，包含动画效果。</p>
+            <p><strong>技术要点：</strong>拖拽API、触摸事件、动画效果</p>
+            <a href="drag-sort.html" class="demo-link">查看演示</a>
+        </div>
+        
+        <div class="demo-card">
+            <h3>🔍 实时搜索
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>智能搜索组件，支持防抖、缓存、高亮显示和键盘导航。</p>
+            <p><strong>技术要点：</strong>防抖优化、搜索算法、键盘交互</p>
+            <a href="search-component.html" class="demo-link">查看演示</a>
+        </div>
+        
+        <div class="demo-card">
+            <h3>📝 表单验证器
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>功能完整的表单验证系统，支持同步/异步验证、自定义规则和实时反馈。</p>
+            <p><strong>技术要点：</strong>表单验证、正则表达式、用户体验</p>
+            <a href="form-validator.html" class="demo-link">查看演示</a>
+        </div>
+        
+        <div class="demo-card">
+            <h3>📁 文件上传
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>多功能文件上传组件，支持拖拽、粘贴、大文件分片和断点续传。</p>
+            <p><strong>技术要点：</strong>File API、分片上传、进度控制</p>
+            <a href="file-upload.html" class="demo-link">查看演示</a>
+        </div>
+    </div>
+    
+    <div class="category">
+        <h2>🎨 高级组件类</h2>
+    </div>
+    
+    <div class="demo-grid">
+        <div class="demo-card">
+            <h3>💻 代码编辑器
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>功能丰富的代码编辑器，支持语法高亮、自动补全、快捷键和代码格式化。</p>
+            <p><strong>技术要点：</strong>文本处理、语法解析、光标操作</p>
+            <a href="code-editor.html" class="demo-link">查看演示</a>
+        </div>
+        
+        <div class="demo-card">
+            <h3>📝 富文本编辑器
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>完整的富文本编辑器实现，支持格式化、媒体插入和所见即所得编辑。</p>
+            <p><strong>技术要点：</strong>contentEditable、Selection API、XSS防护</p>
+            <a href="rich-text-editor.html" class="demo-link">查看演示</a>
+        </div>
+        
+        <div class="demo-card">
+            <h3>✂️ 图片裁剪器
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>专业的图片裁剪工具，支持自由裁剪、比例限制、图片变换和高质量输出。</p>
+            <p><strong>技术要点：</strong>Canvas API、图像处理、坐标变换</p>
+            <a href="image-cropper.html" class="demo-link">查看演示</a>
+        </div>
+        
+        <div class="demo-card">
+            <h3>📊 数据可视化
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>数据图表组件库，支持柱状图、折线图、饼图，包含交互动画和响应式设计。</p>
+            <p><strong>技术要点：</strong>SVG绘图、数据处理、交互动画</p>
+            <a href="data-visualization.html" class="demo-link">查看演示</a>
+        </div>
+        
+        <div class="demo-card">
+            <h3>💬 WebSocket聊天室
+                <span class="status-badge status-available">可用</span>
+            </h3>
+            <p>实时通信聊天室，支持用户管理、消息类型、连接管理和通知系统。</p>
+            <p><strong>技术要点：</strong>WebSocket、实时通信、状态管理</p>
+            <a href="websocket-chat.html" class="demo-link">查看演示</a>
+        </div>
+    </div>
+    
+    <div style="margin: 50px 0; padding: 30px; background: #f8f9fa; border-radius: 10px; text-align: center;">
+        <h2 style="color: #495057; margin-bottom: 20px;">🎯 学习建议</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px;">
+            <div style="padding: 20px; background: white; border-radius: 8px; border-left: 4px solid #28a745;">
+                <h4 style="color: #28a745; margin: 0 0 10px 0;">📚 基础巩固</h4>
+                <p style="margin: 0; font-size: 14px; color: #666;">先掌握JavaScript核心概念，理解原型链、闭包、异步编程等基础知识。</p>
+            </div>
+            
+            <div style="padding: 20px; background: white; border-radius: 8px; border-left: 4px solid #007bff;">
+                <h4 style="color: #007bff; margin: 0 0 10px 0;">🔧 实践应用</h4>
+                <p style="margin: 0; font-size: 14px; color: #666;">结合实际项目需求，选择相应的组件进行深入学习和实践。</p>
+            </div>
+            
+            <div style="padding: 20px; background: white; border-radius: 8px; border-left: 4px solid #fd7e14;">
+                <h4 style="color: #fd7e14; margin: 0 0 10px 0;">🚀 性能优化</h4>
+                <p style="margin: 0; font-size: 14px; color: #666;">重点关注性能优化技术，如虚拟化、懒加载、缓存策略等。</p>
+            </div>
+            
+            <div style="padding: 20px; background: white; border-radius: 8px; border-left: 4px solid #6f42c1;">
+                <h4 style="color: #6f42c1; margin: 0 0 10px 0;">🎨 用户体验</h4>
+                <p style="margin: 0; font-size: 14px; color: #666;">注重交互设计和用户体验，学习如何创建流畅的用户界面。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载统计
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎯 场景应用题演示页面已加载');
+            
+            // 统计演示数量
+            const totalCards = document.querySelectorAll('.demo-card').length;
+            const availableCards = document.querySelectorAll('.status-available').length;
+            
+            console.log(`📊 统计信息:`);
+            console.log(`   总演示数: ${totalCards}`);
+            console.log(`   可用演示: ${availableCards}`);
+            console.log(`   完成率: ${Math.round(availableCards / totalCards * 100)}%`);
+            
+            // 添加点击统计
+            document.querySelectorAll('.demo-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const title = this.parentElement.querySelector('h3').textContent.trim();
+                    console.log(`🔗 访问演示: ${title}`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

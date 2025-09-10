@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New/Instanceof 实现演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .demo-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #6f42c1;
+        }
+        
+        .demo-section h2 {
+            color: #6f42c1;
+            margin-bottom: 15px;
+        }
+        
+        .test-button {
+            background: #6f42c1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        
+        .test-button:hover {
+            background: #5a32a3;
+        }
+        
+        .test-button.success {
+            background: #28a745;
+        }
+        
+        .test-button.success:hover {
+            background: #1e7e34;
+        }
+        
+        .test-button.info {
+            background: #17a2b8;
+        }
+        
+        .test-button.info:hover {
+            background: #138496;
+        }
+        
+        .test-button.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .test-button.warning:hover {
+            background: #e0a800;
+        }
+        
+        .result {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .constructor-demo {
+            background: white;
+            border: 2px solid #6f42c1;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .constructor-demo h4 {
+            margin: 0 0 10px 0;
+            color: #6f42c1;
+        }
+        
+        .prototype-chain {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .chain-item {
+            padding: 5px 0;
+            border-bottom: 1px dashed #ccc;
+        }
+        
+        .chain-item:last-child {
+            border-bottom: none;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .comparison-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+        
+        .comparison-item h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        
+        .back-link {
+            display: inline-block;
+            color: #007bff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            background: #007bff;
+            color: white;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            color: #856404;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .error-box {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← 返回首页</a>
+    
+    <div class="demo-container">
+        <h1>🏗️ New/Instanceof 实现演示</h1>
+        
+        <div class="demo-section">
+            <h2>🔧 New 操作符测试</h2>
+            <p>测试自实现的 new 操作符功能</p>
+            
+            <button class="test-button" onclick="testBasicNew()">基础构造函数</button>
+            <button class="test-button success" onclick="testComplexConstructor()">复杂构造函数</button>
+            <button class="test-button info" onclick="testReturnValue()">返回值处理</button>
+            <button class="test-button warning" onclick="testArrowFunction()">箭头函数测试</button>
+            
+            <div class="result" id="new-result"></div>
+            
+            <div class="constructor-demo" id="constructor-comparison" style="display: none;">
+                <h4>构造函数对比</h4>
+                <div class="comparison-grid">
+                    <div class="comparison-item">
+                        <h4>原生 new</h4>
+                        <div id="native-new-result"></div>
+                    </div>
+                    <div class="comparison-item">
+                        <h4>myNew 实现</h4>
+                        <div id="my-new-result"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🔍 Instanceof 操作符测试</h2>
+            <p>测试自实现的 instanceof 操作符功能</p>
+            
+            <button class="test-button" onclick="testBasicInstanceof()">基础类型检测</button>
+            <button class="test-button success" onclick="testInheritanceChain()">继承链检测</button>
+            <button class="test-button info" onclick="testPrimitiveTypes()">基本类型处理</button>
+            <button class="test-button warning" onclick="testSymbolHasInstance()">Symbol.hasInstance</button>
+            
+            <div class="result" id="instanceof-result"></div>
+            
+            <div class="prototype-chain" id="prototype-visualization" style="display: none;">
+                <strong>原型链可视化：</strong>
+                <div id="chain-items"></div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🎯 综合应用测试</h2>
+            <p>结合 new 和 instanceof 的复杂场景测试</p>
+            
+            <button class="test-button" onclick="testComplexScenario()">复杂场景</button>
+            <button class="test-button success" onclick="testClassInheritance()">类继承</button>
+            <button class="test-button info" onclick="testMixinPattern()">混入模式</button>
+            
+            <div class="result" id="complex-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>⚡ 性能和边界测试</h2>
+            <p>测试性能表现和各种边界情况</p>
+            
+            <button class="test-button" onclick="runPerformanceTest()">性能测试</button>
+            <button class="test-button success" onclick="testEdgeCases()">边界情况</button>
+            <button class="test-button info" onclick="testErrorHandling()">错误处理</button>
+            
+            <div class="result" id="performance-result"></div>
+        </div>
+    </div>
+
+    <script src="../vanilla-js/new.js"></script>
+    <script src="../vanilla-js/instanceof.js"></script>
+    
+    <script>
+        // 测试用的构造函数
+        function Person(name, age) {
+            this.name = name;
+            this.age = age;
+            this.greet = function() {
+                return `Hello, I'm ${this.name}`;
+            };
+        }
+        
+        Person.prototype.sayAge = function() {
+            return `I'm ${this.age} years old`;
+        };
+        
+        function Student(name, age, school) {
+            Person.call(this, name, age);
+            this.school = school;
+        }
+        
+        Student.prototype = Object.create(Person.prototype);
+        Student.prototype.constructor = Student;
+        Student.prototype.study = function() {
+            return `${this.name} is studying at ${this.school}`;
+        };
+        
+        // 测试基础 new 操作符
+        function testBasicNew() {
+            const result = document.getElementById('new-result');
+            const comparison = document.getElementById('constructor-comparison');
+            
+            try {
+                // 使用原生 new
+                const person1 = new Person('Alice', 25);
+                
+                // 使用 myNew
+                const person2 = myNew(Person, 'Bob', 30);
+                
+                // 比较结果
+                const tests = [
+                    {
+                        name: '实例类型',
+                        native: person1 instanceof Person,
+                        my: person2 instanceof Person
+                    },
+                    {
+                        name: '属性设置',
+                        native: person1.name === 'Alice' && person1.age === 25,
+                        my: person2.name === 'Bob' && person2.age === 30
+                    },
+                    {
+                        name: '方法调用',
+                        native: person1.greet() === "Hello, I'm Alice",
+                        my: person2.greet() === "Hello, I'm Bob"
+                    },
+                    {
+                        name: '原型方法',
+                        native: person1.sayAge() === "I'm 25 years old",
+                        my: person2.sayAge() === "I'm 30 years old"
+                    },
+                    {
+                        name: '构造函数属性',
+                        native: person1.constructor === Person,
+                        my: person2.constructor === Person
+                    }
+                ];
+                
+                result.textContent = `🔧 基础 new 操作符测试结果:\n\n`;
+                
+                let allPassed = true;
+                tests.forEach(test => {
+                    const passed = test.native === test.my && test.native === true;
+                    allPassed = allPassed && passed;
+                    result.textContent += `${passed ? '✅' : '❌'} ${test.name}: ${passed ? '通过' : '失败'}\n`;
+                    result.textContent += `   原生: ${test.native}, myNew: ${test.my}\n`;
+                });
+                
+                result.textContent += `\n🎯 总体结果: ${allPassed ? '✅ 全部通过' : '❌ 存在问题'}\n`;
+                
+                // 显示对比
+                document.getElementById('native-new-result').innerHTML = `
+                    <strong>Person实例 (原生):</strong><br>
+                    name: ${person1.name}<br>
+                    age: ${person1.age}<br>
+                    greet(): ${person1.greet()}<br>
+                    sayAge(): ${person1.sayAge()}<br>
+                    constructor: ${person1.constructor.name}
+                `;
+                
+                document.getElementById('my-new-result').innerHTML = `
+                    <strong>Person实例 (myNew):</strong><br>
+                    name: ${person2.name}<br>
+                    age: ${person2.age}<br>
+                    greet(): ${person2.greet()}<br>
+                    sayAge(): ${person2.sayAge()}<br>
+                    constructor: ${person2.constructor.name}
+                `;
+                
+                comparison.style.display = 'block';
+                
+            } catch (error) {
+                result.textContent = `❌ 基础测试失败: ${error.message}`;
+                comparison.style.display = 'none';
+            }
+        }
+        
+        // 测试复杂构造函数
+        function testComplexConstructor() {
+            const result = document.getElementById('new-result');
+            
+            try {
+                function ComplexConstructor(config) {
+                    this.id = config.id || Math.random();
+                    this.data = config.data || {};
+                    this.created = new Date();
+                    
+                    // 复杂初始化
+                    if (config.initialize) {
+                        this.init();
+                    }
+                    
+                    // 私有方法
+                    this.getValue = function(key) {
+                        return this.data[key];
+                    };
+                }
+                
+                ComplexConstructor.prototype.init = function() {
+                    this.initialized = true;
+                    this.status = 'ready';
+                };
+                
+                const config = {
+                    id: 'test-123',
+                    data: { name: 'Test', value: 42 },
+                    initialize: true
+                };
+                
+                const obj1 = new ComplexConstructor(config);
+                const obj2 = myNew(ComplexConstructor, config);
+                
+                result.textContent = `🏗️ 复杂构造函数测试:\n\n`;
+                result.textContent += `原生构造:\n`;
+                result.textContent += `  ID: ${obj1.id}\n`;
+                result.textContent += `  Data: ${JSON.stringify(obj1.data)}\n`;
+                result.textContent += `  Initialized: ${obj1.initialized}\n`;
+                result.textContent += `  Status: ${obj1.status}\n`;
+                result.textContent += `  getValue('name'): ${obj1.getValue('name')}\n`;
+                
+                result.textContent += `\nmyNew构造:\n`;
+                result.textContent += `  ID: ${obj2.id}\n`;
+                result.textContent += `  Data: ${JSON.stringify(obj2.data)}\n`;
+                result.textContent += `  Initialized: ${obj2.initialized}\n`;
+                result.textContent += `  Status: ${obj2.status}\n`;
+                result.textContent += `  getValue('name'): ${obj2.getValue('name')}\n`;
+                
+                const identical = JSON.stringify(obj1) === JSON.stringify(obj2);
+                result.textContent += `\n🎯 结果一致性: ${identical ? '✅ 一致' : '⚠️ 存在差异'}`;
+                
+            } catch (error) {
+                result.textContent = `❌ 复杂构造函数测试失败: ${error.message}`;
+            }
+        }
+        
+        // 测试返回值处理
+        function testReturnValue() {
+            const result = document.getElementById('new-result');
+            
+            try {
+                // 返回对象的构造函数
+                function ReturnObject() {
+                    this.name = 'internal';
+                    return { name: 'external', type: 'custom' };
+                }
+                
+                // 返回基本类型的构造函数
+                function ReturnPrimitive() {
+                    this.name = 'internal';
+                    return 'string'; // 应该被忽略
+                }
+                
+                // 不返回的构造函数
+                function NoReturn() {
+                    this.name = 'internal';
+                }
+                
+                const tests = [
+                    {
+                        name: '返回对象',
+                        Constructor: ReturnObject,
+                        expectExternal: true
+                    },
+                    {
+                        name: '返回基本类型',
+                        Constructor: ReturnPrimitive,
+                        expectExternal: false
+                    },
+                    {
+                        name: '无返回值',
+                        Constructor: NoReturn,
+                        expectExternal: false
+                    }
+                ];
+                
+                result.textContent = `🔄 返回值处理测试:\n\n`;
+                
+                tests.forEach(test => {
+                    const native = new test.Constructor();
+                    const my = myNew(test.Constructor);
+                    
+                    result.textContent += `📋 ${test.name}:\n`;
+                    result.textContent += `  原生: ${JSON.stringify(native)}\n`;
+                    result.textContent += `  myNew: ${JSON.stringify(my)}\n`;
+                    
+                    const nativeExternal = native.name === 'external';
+                    const myExternal = my.name === 'external';
+                    const consistent = nativeExternal === myExternal;
+                    
+                    result.textContent += `  行为一致: ${consistent ? '✅' : '❌'}\n\n`;
+                });
+                
+            } catch (error) {
+                result.textContent = `❌ 返回值测试失败: ${error.message}`;
+            }
+        }
+        
+        // 测试箭头函数
+        function testArrowFunction() {
+            const result = document.getElementById('new-result');
+            
+            try {
+                const ArrowFunction = (name) => {
+                    this.name = name;
+                };
+                
+                result.textContent = `🏹 箭头函数测试:\n\n`;
+                
+                // 测试原生 new (应该报错)
+                try {
+                    const native = new ArrowFunction('test');
+                    result.textContent += `❌ 原生 new 箭头函数: 未报错 (异常)\n`;
+                } catch (error) {
+                    result.textContent += `✅ 原生 new 箭头函数: ${error.name}\n`;
+                }
+                
+                // 测试 myNew (应该报错)
+                try {
+                    const my = myNew(ArrowFunction, 'test');
+                    result.textContent += `❌ myNew 箭头函数: 未报错 (异常)\n`;
+                } catch (error) {
+                    result.textContent += `✅ myNew 箭头函数: ${error.message}\n`;
+                }
+                
+                result.textContent += `\n💡 箭头函数没有 prototype 属性，不能作为构造函数使用`;
+                
+            } catch (error) {
+                result.textContent = `❌ 箭头函数测试失败: ${error.message}`;
+            }
+        }
+        
+        // 测试基础 instanceof
+        function testBasicInstanceof() {
+            const result = document.getElementById('instanceof-result');
+            const visualization = document.getElementById('prototype-visualization');
+            
+            try {
+                const person = new Person('John', 25);
+                const student = new Student('Jane', 20, 'MIT');
+                const arr = [1, 2, 3];
+                const obj = {};
+                
+                const tests = [
+                    { obj: person, Constructor: Person, expected: true },
+                    { obj: person, Constructor: Object, expected: true },
+                    { obj: student, Constructor: Student, expected: true },
+                    { obj: student, Constructor: Person, expected: true },
+                    { obj: student, Constructor: Object, expected: true },
+                    { obj: arr, Constructor: Array, expected: true },
+                    { obj: arr, Constructor: Object, expected: true },
+                    { obj: obj, Constructor: Object, expected: true },
+                    { obj: person, Constructor: Array, expected: false },
+                    { obj: arr, Constructor: Person, expected: false }
+                ];
+                
+                result.textContent = `🔍 基础 instanceof 测试:\n\n`;
+                
+                let allPassed = true;
+                tests.forEach((test, index) => {
+                    const native = test.obj instanceof test.Constructor;
+                    const my = myInstanceof(test.obj, test.Constructor);
+                    
+                    const passed = native === my && native === test.expected;
+                    allPassed = allPassed && passed;
+                    
+                    result.textContent += `${passed ? '✅' : '❌'} 测试${index + 1}: `;
+                    result.textContent += `${getObjectName(test.obj)} instanceof ${test.Constructor.name}\n`;
+                    result.textContent += `   原生: ${native}, myInstanceof: ${my}, 期望: ${test.expected}\n`;
+                });
+                
+                result.textContent += `\n🎯 总体结果: ${allPassed ? '✅ 全部通过' : '❌ 存在问题'}`;
+                
+                // 显示原型链
+                showPrototypeChain(student, 'chain-items');
+                visualization.style.display = 'block';
+                
+            } catch (error) {
+                result.textContent = `❌ 基础 instanceof 测试失败: ${error.message}`;
+            }
+        }
+        
+        // 获取对象名称
+        function getObjectName(obj) {
+            if (Array.isArray(obj)) return 'Array';
+            if (obj.constructor && obj.constructor.name) return obj.constructor.name + '实例';
+            return 'Object';
+        }
+        
+        // 显示原型链
+        function showPrototypeChain(obj, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            let current = obj;
+            let level = 0;
+            
+            while (current && level < 10) {
+                const item = document.createElement('div');
+                item.className = 'chain-item';
+                
+                let name = '';
+                if (level === 0) {
+                    name = `对象实例 (${obj.constructor.name})`;
+                } else if (current.constructor) {
+                    name = `${current.constructor.name}.prototype`;
+                } else {
+                    name = 'Object.prototype / null';
+                }
+                
+                item.textContent = `${level}: ${name}`;
+                container.appendChild(item);
+                
+                current = Object.getPrototypeOf(current);
+                level++;
+            }
+        }
+        
+        // 测试继承链
+        function testInheritanceChain() {
+            const result = document.getElementById('instanceof-result');
+            
+            try {
+                // 创建多层继承
+                function Animal(name) {
+                    this.name = name;
+                }
+                
+                function Mammal(name, furColor) {
+                    Animal.call(this, name);
+                    this.furColor = furColor;
+                }
+                Mammal.prototype = Object.create(Animal.prototype);
+                Mammal.prototype.constructor = Mammal;
+                
+                function Dog(name, furColor, breed) {
+                    Mammal.call(this, name, furColor);
+                    this.breed = breed;
+                }
+                Dog.prototype = Object.create(Mammal.prototype);
+                Dog.prototype.constructor = Dog;
+                
+                const dog = new Dog('Buddy', 'brown', 'Golden Retriever');
+                
+                const tests = [
+                    { Constructor: Dog, expected: true },
+                    { Constructor: Mammal, expected: true },
+                    { Constructor: Animal, expected: true },
+                    { Constructor: Object, expected: true },
+                    { Constructor: Array, expected: false },
+                    { Constructor: Function, expected: false }
+                ];
+                
+                result.textContent = `🧬 继承链测试 (Dog → Mammal → Animal → Object):\n\n`;
+                
+                tests.forEach(test => {
+                    const native = dog instanceof test.Constructor;
+                    const my = myInstanceof(dog, test.Constructor);
+                    const passed = native === my;
+                    
+                    result.textContent += `${passed ? '✅' : '❌'} dog instanceof ${test.Constructor.name}: `;
+                    result.textContent += `原生=${native}, my=${my}\n`;
+                });
+                
+                result.textContent += `\n🎯 Dog实例属性:\n`;
+                result.textContent += `  name: ${dog.name}\n`;
+                result.textContent += `  furColor: ${dog.furColor}\n`;
+                result.textContent += `  breed: ${dog.breed}\n`;
+                result.textContent += `  constructor: ${dog.constructor.name}`;
+                
+            } catch (error) {
+                result.textContent = `❌ 继承链测试失败: ${error.message}`;
+            }
+        }
+        
+        // 测试基本类型
+        function testPrimitiveTypes() {
+            const result = document.getElementById('instanceof-result');
+            
+            try {
+                const primitives = [
+                    { value: 42, name: 'number' },
+                    { value: 'hello', name: 'string' },
+                    { value: true, name: 'boolean' },
+                    { value: null, name: 'null' },
+                    { value: undefined, name: 'undefined' },
+                    { value: Symbol('test'), name: 'symbol' }
+                ];
+                
+                result.textContent = `🎯 基本类型测试:\n\n`;
+                
+                primitives.forEach(primitive => {
+                    try {
+                        const native = primitive.value instanceof Object;
+                        const my = myInstanceof(primitive.value, Object);
+                        const passed = native === my;
+                        
+                        result.textContent += `${passed ? '✅' : '❌'} ${primitive.name} instanceof Object: `;
+                        result.textContent += `原生=${native}, my=${my}\n`;
+                    } catch (error) {
+                        result.textContent += `⚠️ ${primitive.name}: ${error.message}\n`;
+                    }
+                });
+                
+                result.textContent += `\n💡 基本类型不是对象，instanceof 应该返回 false`;
+                
+            } catch (error) {
+                result.textContent = `❌ 基本类型测试失败: ${error.message}`;
+            }
+        }
+        
+        // 测试Symbol.hasInstance
+        function testSymbolHasInstance() {
+            const result = document.getElementById('instanceof-result');
+            
+            try {
+                // 创建自定义instanceof行为
+                class CustomClass {
+                    static [Symbol.hasInstance](instance) {
+                        return instance && instance.customFlag === true;
+                    }
+                }
+                
+                const obj1 = { customFlag: true };
+                const obj2 = { customFlag: false };
+                const obj3 = new CustomClass();
+                
+                result.textContent = `🔮 Symbol.hasInstance 测试:\n\n`;
+                
+                const tests = [
+                    { obj: obj1, expected: true, name: 'customFlag=true的对象' },
+                    { obj: obj2, expected: false, name: 'customFlag=false的对象' },
+                    { obj: obj3, expected: false, name: 'CustomClass实例' }
+                ];
+                
+                tests.forEach(test => {
+                    try {
+                        const native = test.obj instanceof CustomClass;
+                        const my = myInstanceofWithSymbol ? myInstanceofWithSymbol(test.obj, CustomClass) : '不支持';
+                        
+                        result.textContent += `📋 ${test.name}:\n`;
+                        result.textContent += `   原生: ${native}\n`;
+                        result.textContent += `   my: ${my}\n`;
+                        result.textContent += `   期望: ${test.expected}\n`;
+                        result.textContent += `   匹配: ${native === test.expected ? '✅' : '❌'}\n\n`;
+                    } catch (error) {
+                        result.textContent += `❌ ${test.name}: ${error.message}\n`;
+                    }
+                });
+                
+            } catch (error) {
+                result.textContent = `❌ Symbol.hasInstance 测试失败: ${error.message}`;
+            }
+        }
+        
+        // 测试复杂场景
+        function testComplexScenario() {
+            const result = document.getElementById('complex-result');
+            
+            try {
+                // 使用 myNew 创建对象，然后用 myInstanceof 检测
+                const person = myNew(Person, 'Complex', 30);
+                const student = myNew(Student, 'Advanced', 22, 'Harvard');
+                
+                result.textContent = `🎯 综合应用测试:\n\n`;
+                
+                result.textContent += `📋 使用 myNew 创建的对象:\n`;
+                result.textContent += `Person: ${person.greet()}\n`;
+                result.textContent += `Student: ${student.study()}\n\n`;
+                
+                result.textContent += `🔍 使用 myInstanceof 检测:\n`;
+                result.textContent += `person instanceof Person: ${myInstanceof(person, Person)}\n`;
+                result.textContent += `person instanceof Object: ${myInstanceof(person, Object)}\n`;
+                result.textContent += `student instanceof Student: ${myInstanceof(student, Student)}\n`;
+                result.textContent += `student instanceof Person: ${myInstanceof(student, Person)}\n`;
+                result.textContent += `student instanceof Object: ${myInstanceof(student, Object)}\n\n`;
+                
+                // 修改原型链测试
+                const originalProto = Student.prototype;
+                Student.prototype = {};
+                
+                result.textContent += `🔧 修改原型链后:\n`;
+                result.textContent += `student instanceof Student: ${myInstanceof(student, Student)}\n`;
+                result.textContent += `student instanceof Person: ${myInstanceof(student, Person)}\n`;
+                
+                // 恢复原型链
+                Student.prototype = originalProto;
+                
+                result.textContent += `\n✅ 综合测试完成`;
+                
+            } catch (error) {
+                result.textContent = `❌ 综合测试失败: ${error.message}`;
+            }
+        }
+        
+        // 测试类继承
+        function testClassInheritance() {
+            const result = document.getElementById('complex-result');
+            
+            try {
+                // ES6 类继承
+                class Vehicle {
+                    constructor(brand) {
+                        this.brand = brand;
+                    }
+                    
+                    start() {
+                        return `${this.brand} vehicle started`;
+                    }
+                }
+                
+                class Car extends Vehicle {
+                    constructor(brand, model) {
+                        super(brand);
+                        this.model = model;
+                    }
+                    
+                    drive() {
+                        return `Driving ${this.brand} ${this.model}`;
+                    }
+                }
+                
+                const car1 = new Car('Toyota', 'Camry');
+                const car2 = myNew(Car, 'Honda', 'Civic');
+                
+                result.textContent = `🚗 ES6 类继承测试:\n\n`;
+                
+                result.textContent += `原生构造:\n`;
+                result.textContent += `  ${car1.start()}\n`;
+                result.textContent += `  ${car1.drive()}\n`;
+                result.textContent += `  car1 instanceof Car: ${car1 instanceof Car}\n`;
+                result.textContent += `  car1 instanceof Vehicle: ${car1 instanceof Vehicle}\n\n`;
+                
+                result.textContent += `myNew构造:\n`;
+                result.textContent += `  ${car2.start()}\n`;
+                result.textContent += `  ${car2.drive()}\n`;
+                result.textContent += `  car2 instanceof Car: ${myInstanceof(car2, Car)}\n`;
+                result.textContent += `  car2 instanceof Vehicle: ${myInstanceof(car2, Vehicle)}\n`;
+                
+            } catch (error) {
+                result.textContent = `❌ 类继承测试失败: ${error.message}`;
+            }
+        }
+        
+        // 测试混入模式
+        function testMixinPattern() {
+            const result = document.getElementById('complex-result');
+            
+            try {
+                // 混入功能
+                const CanFly = {
+                    fly() { return `${this.name} is flying`; }
+                };
+                
+                const CanSwim = {
+                    swim() { return `${this.name} is swimming`; }
+                };
+                
+                function Bird(name) {
+                    this.name = name;
+                }
+                
+                // 混入功能
+                Object.assign(Bird.prototype, CanFly);
+                
+                function Duck(name) {
+                    Bird.call(this, name);
+                }
+                
+                Duck.prototype = Object.create(Bird.prototype);
+                Duck.prototype.constructor = Duck;
+                Object.assign(Duck.prototype, CanSwim);
+                
+                const duck = myNew(Duck, 'Donald');
+                
+                result.textContent = `🦆 混入模式测试:\n\n`;
+                result.textContent += `Duck实例功能:\n`;
+                result.textContent += `  name: ${duck.name}\n`;
+                result.textContent += `  fly(): ${duck.fly()}\n`;
+                result.textContent += `  swim(): ${duck.swim()}\n\n`;
+                
+                result.textContent += `instanceof检测:\n`;
+                result.textContent += `  duck instanceof Duck: ${myInstanceof(duck, Duck)}\n`;
+                result.textContent += `  duck instanceof Bird: ${myInstanceof(duck, Bird)}\n`;
+                result.textContent += `  duck instanceof Object: ${myInstanceof(duck, Object)}\n`;
+                
+            } catch (error) {
+                result.textContent = `❌ 混入模式测试失败: ${error.message}`;
+            }
+        }
+        
+        // 性能测试
+        function runPerformanceTest() {
+            const result = document.getElementById('performance-result');
+            
+            result.textContent = '开始性能测试...\n';
+            
+            const iterations = 100000;
+            const obj = new Person('Test', 25);
+            
+            // 测试 instanceof 性能
+            const nativeStart = performance.now();
+            for (let i = 0; i < iterations; i++) {
+                obj instanceof Person;
+                obj instanceof Object;
+            }
+            const nativeTime = performance.now() - nativeStart;
+            
+            // 测试 myInstanceof 性能
+            const myStart = performance.now();
+            for (let i = 0; i < iterations; i++) {
+                myInstanceof(obj, Person);
+                myInstanceof(obj, Object);
+            }
+            const myTime = performance.now() - myStart;
+            
+            // 测试 new 性能
+            const nativeNewStart = performance.now();
+            for (let i = 0; i < 10000; i++) {
+                new Person('Test', i);
+            }
+            const nativeNewTime = performance.now() - nativeNewStart;
+            
+            const myNewStart = performance.now();
+            for (let i = 0; i < 10000; i++) {
+                myNew(Person, 'Test', i);
+            }
+            const myNewTime = performance.now() - myNewStart;
+            
+            result.textContent = `⚡ 性能测试结果:\n\n`;
+            result.textContent += `instanceof (${iterations * 2} 次):\n`;
+            result.textContent += `  原生: ${Math.round(nativeTime)}ms\n`;
+            result.textContent += `  myInstanceof: ${Math.round(myTime)}ms\n`;
+            result.textContent += `  性能比: ${Math.round(myTime / nativeTime * 100)}%\n\n`;
+            
+            result.textContent += `new (10000 次):\n`;
+            result.textContent += `  原生: ${Math.round(nativeNewTime)}ms\n`;
+            result.textContent += `  myNew: ${Math.round(myNewTime)}ms\n`;
+            result.textContent += `  性能比: ${Math.round(myNewTime / nativeNewTime * 100)}%\n\n`;
+            
+            result.textContent += `💡 分析:\n`;
+            result.textContent += `- 自实现版本略慢于原生实现\n`;
+            result.textContent += `- 性能差异主要来自额外的类型检查\n`;
+            result.textContent += `- 在实际应用中差异可忽略不计`;
+        }
+        
+        // 边界情况测试
+        function testEdgeCases() {
+            const result = document.getElementById('performance-result');
+            
+            result.textContent = '🧪 边界情况测试:\n\n';
+            
+            const edgeCases = [
+                {
+                    name: 'null对象',
+                    test: () => myInstanceof(null, Object),
+                    expected: false
+                },
+                {
+                    name: 'undefined对象',
+                    test: () => myInstanceof(undefined, Object),
+                    expected: false
+                },
+                {
+                    name: '空构造函数',
+                    test: () => {
+                        function Empty() {}
+                        const obj = myNew(Empty);
+                        return myInstanceof(obj, Empty);
+                    },
+                    expected: true
+                },
+                {
+                    name: '无prototype的函数',
+                    test: () => {
+                        function NoProto() {}
+                        delete NoProto.prototype;
+                        try {
+                            return myNew(NoProto);
+                        } catch (e) {
+                            return 'error';
+                        }
+                    },
+                    expected: 'error'
+                }
+            ];
+            
+            edgeCases.forEach(testCase => {
+                try {
+                    const actual = testCase.test();
+                    const passed = actual === testCase.expected;
+                    result.textContent += `${passed ? '✅' : '❌'} ${testCase.name}: `;
+                    result.textContent += `期望=${testCase.expected}, 实际=${actual}\n`;
+                } catch (error) {
+                    result.textContent += `⚠️ ${testCase.name}: ${error.message}\n`;
+                }
+            });
+            
+            result.textContent += '\n✅ 边界情况测试完成';
+        }
+        
+        // 错误处理测试
+        function testErrorHandling() {
+            const result = document.getElementById('performance-result');
+            
+            result.textContent = '🚨 错误处理测试:\n\n';
+            
+            const errorTests = [
+                {
+                    name: '非函数构造器(myNew)',
+                    test: () => myNew('not a function'),
+                    shouldThrow: true
+                },
+                {
+                    name: '非函数构造器(myInstanceof)',
+                    test: () => myInstanceof({}, 'not a function'),
+                    shouldThrow: true
+                },
+                {
+                    name: '正常的错误构造函数',
+                    test: () => {
+                        function ErrorConstructor() {
+                            throw new Error('构造函数内部错误');
+                        }
+                        return myNew(ErrorConstructor);
+                    },
+                    shouldThrow: true
+                }
+            ];
+            
+            errorTests.forEach(test => {
+                try {
+                    const result = test.test();
+                    if (test.shouldThrow) {
+                        result.textContent += `❌ ${test.name}: 应该抛出错误但没有\n`;
+                    } else {
+                        result.textContent += `✅ ${test.name}: 正常执行\n`;
+                    }
+                } catch (error) {
+                    if (test.shouldThrow) {
+                        result.textContent += `✅ ${test.name}: 正确抛出错误 - ${error.message}\n`;
+                    } else {
+                        result.textContent += `❌ ${test.name}: 不应该抛出错误 - ${error.message}\n`;
+                    }
+                }
+            });
+            
+            result.textContent += '\n✅ 错误处理测试完成';
+        }
+        
+        // 页面加载提示
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🏗️ New/Instanceof演示页面已加载');
+            console.log('💡 点击测试按钮查看各种实现效果');
+            
+            // 添加说明
+            document.querySelector('.demo-container').insertAdjacentHTML('afterbegin', `
+                <div class="highlight">
+                    <strong>💡 演示说明：</strong>
+                    本演示展示了 new 操作符和 instanceof 操作符的完整实现。
+                    包括原型链处理、继承关系检测、边界情况处理等核心功能。
+                </div>
+            `);
+        });
+    </script>
+</body>
+</html>

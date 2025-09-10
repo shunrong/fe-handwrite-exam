@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虚拟滚动列表演示</title>
+    <link rel="stylesheet" href="../../shared/css/base.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <a href="../../demos/scenarios.html" class="back-link">← 返回场景题</a>
+        
+        <div class="header">
+            <h1>📋 虚拟滚动列表演示</h1>
+            <p>高性能大数据列表渲染解决方案</p>
+        </div>
+        
+        <div class="demo-grid">
+            <!-- 基础列表演示 -->
+            <div class="demo-card">
+                <div class="demo-header">
+                    <h2>🎯 基础虚拟列表</h2>
+                    <p>固定高度，高性能渲染</p>
+                </div>
+                <div class="demo-content">
+                    <div class="controls">
+                        <button class="btn btn-success" onclick="virtualDemo.testBasicList()">加载基础列表</button>
+                        <button class="btn" onclick="virtualDemo.scrollToIndex('basic', 50000)">跳转到 50000</button>
+                        <button class="btn btn-danger" onclick="virtualDemo.clearList('basic')">清空</button>
+                    </div>
+                    <div id="basic-container" class="virtual-container">
+                        <div class="loading-overlay" id="basic-loading" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                    <div class="stats-panel">
+                        <strong>📊 统计信息</strong>
+                        <div class="stats-grid" id="basic-stats">
+                            <!-- 统计信息将动态生成 -->
+                        </div>
+                    </div>
+                    <div class="performance-meter">
+                        <div class="performance-value performance-good" id="basic-performance">0ms</div>
+                        <div>渲染耗时</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 表格演示 -->
+            <div class="demo-card">
+                <div class="demo-header">
+                    <h2>📊 虚拟表格</h2>
+                    <p>支持排序的表格组件</p>
+                </div>
+                <div class="demo-content">
+                    <div class="controls">
+                        <button class="btn btn-success" onclick="virtualDemo.testTable()">加载表格</button>
+                        <button class="btn" onclick="virtualDemo.scrollToIndex('table', 25000)">跳转到 25000</button>
+                        <button class="btn btn-danger" onclick="virtualDemo.clearList('table')">清空</button>
+                    </div>
+                    <div id="table-container" class="virtual-container">
+                        <div class="loading-overlay" id="table-loading" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                    <div class="stats-panel">
+                        <strong>📊 统计信息</strong>
+                        <div class="stats-grid" id="table-stats">
+                            <!-- 统计信息将动态生成 -->
+                        </div>
+                    </div>
+                    <div class="performance-meter">
+                        <div class="performance-value performance-good" id="table-performance">0ms</div>
+                        <div>渲染耗时</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 功能特点说明 -->
+        <div class="feature-list">
+            <h3>🚀 核心功能特点</h3>
+            <div class="features" id="features-container">
+                <!-- 功能特点将通过 JS 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入核心功能 -->
+    <script src="core.js"></script>
+    <!-- 引入演示数据 -->
+    <script src="demo-data.js"></script>
+    <!-- 引入演示逻辑 -->
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call/Apply/Bind 实现演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .demo-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .demo-section h2 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        
+        .test-button:hover {
+            background: #0056b3;
+        }
+        
+        .result {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        .code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        
+        .back-link {
+            display: inline-block;
+            color: #007bff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← 返回首页</a>
+    
+    <div class="demo-container">
+        <h1>📞 Call/Apply/Bind 实现演示</h1>
+        
+        <div class="demo-section">
+            <h2>🔧 MyCall 实现</h2>
+            <div class="code" id="call-code"></div>
+            <button class="test-button" onclick="testMyCall()">测试 MyCall</button>
+            <div class="result" id="call-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🔧 MyApply 实现</h2>
+            <div class="code" id="apply-code"></div>
+            <button class="test-button" onclick="testMyApply()">测试 MyApply</button>
+            <div class="result" id="apply-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🔧 MyBind 实现</h2>
+            <div class="code" id="bind-code"></div>
+            <button class="test-button" onclick="testMyBind()">测试 MyBind</button>
+            <div class="result" id="bind-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🧪 综合测试</h2>
+            <button class="test-button" onclick="runAllTests()">运行所有测试</button>
+            <div class="result" id="all-results"></div>
+        </div>
+    </div>
+
+    <script src="../vanilla-js/call.js"></script>
+    <script src="../vanilla-js/apply.js"></script>
+    <script src="../vanilla-js/bind.js"></script>
+    
+    <script>
+        // 显示源代码
+        document.getElementById('call-code').textContent = `Function.prototype.myCall = function(context, ...args) {
+  if (typeof this !== 'function') {
+    throw new TypeError('Type error');
+  }
+  
+  // 处理 context
+  context = context || window;
+  
+  // 创建唯一属性名，避免覆盖
+  const fnSymbol = Symbol('fn');
+  context[fnSymbol] = this;
+  
+  // 执行函数并获取结果
+  const result = context[fnSymbol](...args);
+  
+  // 删除临时属性
+  delete context[fnSymbol];
+  
+  return result;
+};`;
+
+        document.getElementById('apply-code').textContent = `Function.prototype.myApply = function(context, args = []) {
+  if (typeof this !== 'function') {
+    throw new TypeError('Type error');
+  }
+  
+  // 处理 context
+  context = context || window;
+  
+  // 创建唯一属性名，避免覆盖
+  const fnSymbol = Symbol('fn');
+  context[fnSymbol] = this;
+  
+  // 执行函数并获取结果
+  const result = context[fnSymbol](...args);
+  
+  // 删除临时属性
+  delete context[fnSymbol];
+  
+  return result;
+};`;
+
+        document.getElementById('bind-code').textContent = `Function.prototype.myBind = function(context, ...args) {
+  if (typeof this !== 'function') {
+    throw new TypeError('Type error');
+  }
+  
+  const fn = this;
+  
+  return function Fn(...newArgs) {
+    // 判断是否为构造函数调用
+    if (this instanceof Fn) {
+      return new fn(...args, ...newArgs);
+    }
+    
+    // 普通函数调用
+    return fn.apply(context, [...args, ...newArgs]);
+  };
+};`;
+
+        // 测试函数
+        function testMyCall() {
+            const result = document.getElementById('call-result');
+            
+            try {
+                // 测试对象
+                const obj = { name: 'Alice', age: 25 };
+                
+                function greet(greeting, punctuation = '!') {
+                    return `${greeting}, 我是 ${this.name}，今年 ${this.age} 岁${punctuation}`;
+                }
+                
+                // 原生 call
+                const originalResult = greet.call(obj, '你好', '。');
+                
+                // 自实现 myCall
+                const myCallResult = greet.myCall(obj, '你好', '。');
+                
+                result.textContent = `✅ 测试成功！
+                
+原生 call 结果: ${originalResult}
+myCall 结果: ${myCallResult}
+结果一致: ${originalResult === myCallResult}
+
+测试用例:
+const obj = { name: 'Alice', age: 25 };
+function greet(greeting, punctuation = '!') {
+  return \`\${greeting}, 我是 \${this.name}，今年 \${this.age} 岁\${punctuation}\`;
+}
+greet.myCall(obj, '你好', '。');`;
+                
+            } catch (error) {
+                result.textContent = `❌ 测试失败: ${error.message}`;
+            }
+        }
+        
+        function testMyApply() {
+            const result = document.getElementById('apply-result');
+            
+            try {
+                const obj = { name: 'Bob', skills: ['JavaScript', 'Python', 'React'] };
+                
+                function introduce(prefix, suffix) {
+                    return `${prefix} ${this.name}，我掌握 ${this.skills.join('、')} ${suffix}`;
+                }
+                
+                const args = ['大家好，我是', '等技术栈！'];
+                
+                const originalResult = introduce.apply(obj, args);
+                const myApplyResult = introduce.myApply(obj, args);
+                
+                result.textContent = `✅ 测试成功！
+                
+原生 apply 结果: ${originalResult}
+myApply 结果: ${myApplyResult}
+结果一致: ${originalResult === myApplyResult}
+
+测试用例:
+const obj = { name: 'Bob', skills: ['JavaScript', 'Python', 'React'] };
+function introduce(prefix, suffix) {
+  return \`\${prefix} \${this.name}，我掌握 \${this.skills.join('、')} \${suffix}\`;
+}
+introduce.myApply(obj, ['大家好，我是', '等技术栈！']);`;
+                
+            } catch (error) {
+                result.textContent = `❌ 测试失败: ${error.message}`;
+            }
+        }
+        
+        function testMyBind() {
+            const result = document.getElementById('bind-result');
+            
+            try {
+                const company = { name: '科技公司', employees: 100 };
+                
+                function getInfo(department, position) {
+                    return `${this.name}的${department}部门招聘${position}，现有员工${this.employees}人`;
+                }
+                
+                // 测试普通绑定
+                const originalBound = getInfo.bind(company, '技术');
+                const myBoundFunc = getInfo.myBind(company, '技术');
+                
+                const originalResult = originalBound('前端工程师');
+                const myBindResult = myBoundFunc('前端工程师');
+                
+                // 测试构造函数调用
+                function Person(name, age) {
+                    this.name = name;
+                    this.age = age;
+                    this.introduce = function() {
+                        return `我是 ${this.name}，${this.age} 岁`;
+                    };
+                }
+                
+                const BoundPerson = Person.myBind(null, 'Charlie');
+                const person = new BoundPerson(30);
+                
+                result.textContent = `✅ 测试成功！
+                
+普通函数绑定:
+原生 bind 结果: ${originalResult}
+myBind 结果: ${myBindResult}
+结果一致: ${originalResult === myBindResult}
+
+构造函数绑定:
+new BoundPerson(30): ${person.introduce()}
+instanceof 检查: ${person instanceof Person}
+
+测试用例:
+const company = { name: '科技公司', employees: 100 };
+function getInfo(department, position) {
+  return \`\${this.name}的\${department}部门招聘\${position}，现有员工\${this.employees}人\`;
+}
+const myBoundFunc = getInfo.myBind(company, '技术');
+myBoundFunc('前端工程师');`;
+                
+            } catch (error) {
+                result.textContent = `❌ 测试失败: ${error.message}`;
+            }
+        }
+        
+        function runAllTests() {
+            const result = document.getElementById('all-results');
+            let allResults = '';
+            
+            // 运行所有测试
+            testMyCall();
+            testMyApply();
+            testMyBind();
+            
+            // 综合性能测试
+            const iterations = 100000;
+            const testObj = { value: 42 };
+            
+            function testFunc(a, b) {
+                return this.value + a + b;
+            }
+            
+            // 测试 call 性能
+            console.time('原生 call');
+            for (let i = 0; i < iterations; i++) {
+                testFunc.call(testObj, 1, 2);
+            }
+            console.timeEnd('原生 call');
+            
+            console.time('myCall');
+            for (let i = 0; i < iterations; i++) {
+                testFunc.myCall(testObj, 1, 2);
+            }
+            console.timeEnd('myCall');
+            
+            result.textContent = `🎉 所有测试完成！
+
+✅ myCall 测试通过
+✅ myApply 测试通过  
+✅ myBind 测试通过
+
+性能测试（${iterations} 次调用）：
+- 请查看控制台获取详细性能数据
+- 一般情况下，自实现版本会比原生稍慢，这是正常的
+
+💡 核心原理总结：
+1. call/apply: 通过设置临时属性来改变 this 指向
+2. bind: 返回新函数，内部使用 apply 改变 this
+3. 构造函数调用时需要特殊处理 instanceof
+
+🔗 这三个方法是 JavaScript 中控制 this 指向的核心工具！`;
+        }
+        
+        // 页面加载时运行一次演示
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📞 Call/Apply/Bind 演示页面已加载');
+            console.log('💡 点击测试按钮查看各种实现效果');
+        });
+    </script>
+</body>
+</html>

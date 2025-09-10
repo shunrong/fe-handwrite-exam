@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket 聊天室演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .demo-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .demo-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .demo-header h1 {
+            margin: 0;
+            margin-bottom: 10px;
+        }
+        
+        .demo-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .back-link {
+            display: inline-block;
+            color: #007bff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            background: #007bff;
+            color: white;
+        }
+        
+        .info-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .info-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .feature-title {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        
+        .feature-desc {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .tech-stack {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .tech-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .tech-item {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+            border: 1px solid #bbdefb;
+        }
+        
+        .demo-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .control-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        
+        .control-btn:hover {
+            background: #0056b3;
+        }
+        
+        .control-btn.secondary {
+            background: #6c757d;
+        }
+        
+        .control-btn.secondary:hover {
+            background: #545b62;
+        }
+        
+        .control-btn.success {
+            background: #28a745;
+        }
+        
+        .control-btn.success:hover {
+            background: #1e7e34;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #856404;
+        }
+        
+        .note strong {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← 返回首页</a>
+    
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>💬 WebSocket 聊天室演示</h1>
+            <p>实时通信应用的完整实现</p>
+        </div>
+        
+        <!-- 聊天室容器 -->
+        <div id="chat-container"></div>
+    </div>
+    
+    <div class="info-section">
+        <h2>🚀 功能特性</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-item">
+                <div class="feature-title">实时通信</div>
+                <div class="feature-desc">基于 WebSocket 的双向实时消息传输</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">用户管理</div>
+                <div class="feature-desc">在线用户列表和状态显示</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">消息类型</div>
+                <div class="feature-desc">文本、表情、文件和图片消息</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">输入指示</div>
+                <div class="feature-desc">实时显示用户正在输入状态</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">连接管理</div>
+                <div class="feature-desc">自动重连、心跳检测和状态监控</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">消息历史</div>
+                <div class="feature-desc">本地存储和历史记录加载</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">通知系统</div>
+                <div class="feature-desc">桌面通知和声音提醒</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">响应式设计</div>
+                <div class="feature-desc">适配桌面和移动端设备</div>
+            </div>
+        </div>
+        
+        <div class="note">
+            <strong>📝 演示说明：</strong> 
+            这是一个前端演示版本，使用模拟的 WebSocket 服务器。
+            实际部署时需要配合真实的 WebSocket 服务器后端。
+            你可以打开浏览器开发者工具查看模拟的网络通信。
+        </div>
+    </div>
+    
+    <div class="demo-controls">
+        <h2>🎮 演示控制</h2>
+        <p>使用下面的按钮来测试各种功能：</p>
+        
+        <button class="control-btn" onclick="simulateUserJoin()">模拟用户加入</button>
+        <button class="control-btn" onclick="simulateMessage()">模拟接收消息</button>
+        <button class="control-btn secondary" onclick="simulateDisconnect()">模拟连接断开</button>
+        <button class="control-btn success" onclick="simulateReconnect()">模拟重新连接</button>
+        <button class="control-btn secondary" onclick="clearHistory()">清空历史记录</button>
+    </div>
+    
+    <div class="info-section">
+        <h2>⚙️ 技术实现</h2>
+        
+        <div class="tech-stack">
+            <h3>前端技术栈</h3>
+            <div class="tech-list">
+                <div class="tech-item">WebSocket API</div>
+                <div class="tech-item">DOM 操作</div>
+                <div class="tech-item">事件处理</div>
+                <div class="tech-item">本地存储</div>
+                <div class="tech-item">Notification API</div>
+                <div class="tech-item">File API</div>
+                <div class="tech-item">响应式 CSS</div>
+                <div class="tech-item">模块化设计</div>
+            </div>
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px;">
+            <h3>核心实现要点</h3>
+            <ul style="color: #666;">
+                <li><strong>连接管理：</strong>WebSocket 生命周期管理、重连策略、心跳机制</li>
+                <li><strong>消息处理：</strong>消息序列化、类型识别、顺序保证</li>
+                <li><strong>状态同步：</strong>用户状态、房间信息、消息历史同步</li>
+                <li><strong>用户体验：</strong>加载状态、错误处理、离线检测</li>
+                <li><strong>性能优化：</strong>消息缓存、DOM 更新优化、内存管理</li>
+                <li><strong>安全考虑：</strong>消息验证、XSS 防护、输入过滤</li>
+            </ul>
+        </div>
+        
+        <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin-top: 20px;">
+            <h3>服务器端要求</h3>
+            <ul style="color: #155724;">
+                <li><strong>WebSocket 服务器：</strong>Node.js (Socket.IO)、Python (WebSockets)、Java (Spring WebSocket)</li>
+                <li><strong>房间管理：</strong>用户加入/离开、房间列表、权限控制</li>
+                <li><strong>消息广播：</strong>房间内广播、私聊、系统消息</li>
+                <li><strong>在线状态：</strong>用户在线检测、状态同步、离线消息</li>
+                <li><strong>数据持久化：</strong>消息历史、用户信息、聊天记录</li>
+                <li><strong>扩展功能：</strong>文件上传、表情包、@提醒、消息搜索</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="../scenarios/websocket-chat.js"></script>
+    
+    <script>
+        let chatDemo;
+        
+        // 初始化聊天室
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('💬 WebSocket 聊天室演示初始化');
+            
+            try {
+                // 创建聊天室实例
+                chatDemo = new WebSocketChatDemo();
+                console.log('✅ 聊天室创建成功');
+            } catch (error) {
+                console.error('❌ 聊天室创建失败:', error);
+            }
+        });
+        
+        // 演示控制函数
+        function simulateUserJoin() {
+            if (chatDemo && chatDemo.chat) {
+                chatDemo.simulateUser();
+                console.log('👤 模拟用户加入');
+            }
+        }
+        
+        function simulateMessage() {
+            if (chatDemo && chatDemo.chat) {
+                chatDemo.simulateMessage();
+                console.log('📝 模拟接收消息');
+            }
+        }
+        
+        function simulateDisconnect() {
+            if (chatDemo && chatDemo.chat) {
+                // 模拟连接断开
+                chatDemo.chat.ws.onclose({ code: 1006 });
+                console.log('🔌 模拟连接断开');
+            }
+        }
+        
+        function simulateReconnect() {
+            if (chatDemo && chatDemo.chat) {
+                // 模拟重新连接
+                setTimeout(() => {
+                    chatDemo.chat.connect();
+                    console.log('🔄 模拟重新连接');
+                }, 1000);
+            }
+        }
+        
+        function clearHistory() {
+            // 清空本地存储
+            localStorage.clear();
+            
+            // 刷新页面
+            location.reload();
+            
+            console.log('🗑️ 清空历史记录');
+        }
+        
+        // 添加键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + Enter 快速发送消息
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                const messageInput = document.querySelector('.message-input');
+                if (messageInput && messageInput.value.trim()) {
+                    const sendBtn = document.querySelector('.send-btn');
+                    if (sendBtn && !sendBtn.disabled) {
+                        sendBtn.click();
+                    }
+                }
+            }
+        });
+        
+        // 页面可见性变化处理
+        document.addEventListener('visibilitychange', function() {
+            if (chatDemo && chatDemo.chat) {
+                if (document.hidden) {
+                    console.log('📱 页面隐藏，可以在这里暂停某些功能');
+                } else {
+                    console.log('👁️ 页面显示，恢复正常功能');
+                    // 重置未读计数等
+                    chatDemo.chat.state.unreadCount = 0;
+                }
+            }
+        });
+        
+        // 网络状态监听
+        window.addEventListener('online', function() {
+            console.log('🌐 网络已连接');
+            if (chatDemo && chatDemo.chat && !chatDemo.chat.state.connected) {
+                chatDemo.chat.connect();
+            }
+        });
+        
+        window.addEventListener('offline', function() {
+            console.log('📴 网络已断开');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>防抖和节流实现演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .demo-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .demo-section h2 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+        
+        .input-demo {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        
+        .button-demo {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .button-demo:hover {
+            background: #0056b3;
+        }
+        
+        .counter {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .counter-item {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+        
+        .counter-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .counter-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .scroll-demo {
+            height: 200px;
+            overflow-y: auto;
+            border: 2px solid #ddd;
+            padding: 20px;
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+        }
+        
+        .scroll-content {
+            height: 1000px;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                #ccc 10px,
+                #ccc 20px
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .back-link {
+            display: inline-block;
+            color: #007bff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            background: #007bff;
+            color: white;
+        }
+        
+        .reset-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        
+        .reset-btn:hover {
+            background: #c82333;
+        }
+        
+        .performance-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .performance-section h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← 返回首页</a>
+    
+    <div class="demo-container">
+        <h1>⚡ 防抖和节流实现演示</h1>
+        
+        <div class="demo-section">
+            <h2>🎯 防抖演示 (Debounce)</h2>
+            <p>防抖：在事件被触发n秒后再执行回调，如果在这n秒内又被触发，则重新计时。</p>
+            
+            <div>
+                <input type="text" 
+                       class="input-demo" 
+                       placeholder="请输入文字测试防抖效果..." 
+                       id="debounce-input">
+                <button class="reset-btn" onclick="resetDebounceCounters()">重置计数</button>
+            </div>
+            
+            <div class="counter">
+                <div class="counter-item">
+                    <div class="counter-value" id="input-count">0</div>
+                    <div class="counter-label">原始输入次数</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" id="debounce-count">0</div>
+                    <div class="counter-label">防抖执行次数</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" id="debounce-immediate-count">0</div>
+                    <div class="counter-label">立即执行防抖次数</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <strong>实时输入内容：</strong>
+                <div id="debounce-output" style="padding: 10px; background: #e9ecef; border-radius: 5px; margin-top: 5px; min-height: 20px;"></div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🚀 节流演示 (Throttle)</h2>
+            <p>节流：规定在一个单位时间内，只能触发一次函数。如果这个单位时间内触发多次函数，只有一次生效。</p>
+            
+            <div style="margin-bottom: 15px;">
+                <button class="button-demo" id="throttle-btn">快速点击测试节流</button>
+                <button class="reset-btn" onclick="resetThrottleCounters()">重置计数</button>
+            </div>
+            
+            <div class="counter">
+                <div class="counter-item">
+                    <div class="counter-value" id="click-count">0</div>
+                    <div class="counter-label">实际点击次数</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" id="throttle-count">0</div>
+                    <div class="counter-label">节流执行次数</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" id="throttle-leading-count">0</div>
+                    <div class="counter-label">leading节流次数</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" id="throttle-trailing-count">0</div>
+                    <div class="counter-label">trailing节流次数</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>📜 滚动事件演示</h2>
+            <p>滚动下面的区域，对比原始滚动事件和节流后的效果：</p>
+            
+            <div class="scroll-demo" id="scroll-container">
+                <div class="scroll-content">
+                    滚动我！观察下方的计数变化
+                </div>
+            </div>
+            
+            <button class="reset-btn" onclick="resetScrollCounters()">重置计数</button>
+            
+            <div class="counter">
+                <div class="counter-item">
+                    <div class="counter-value" id="scroll-count">0</div>
+                    <div class="counter-label">原始滚动次数</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" id="scroll-throttle-count">0</div>
+                    <div class="counter-label">节流滚动次数</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-value" id="scroll-position">0</div>
+                    <div class="counter-label">当前滚动位置</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="performance-section">
+            <h3>🔥 性能对比</h3>
+            <p>通过上面的演示可以看到：</p>
+            <ul>
+                <li><strong>防抖</strong>：大幅减少了函数执行次数，适用于搜索框、表单验证等场景</li>
+                <li><strong>节流</strong>：控制函数执行频率，适用于滚动事件、窗口大小调整等高频事件</li>
+                <li><strong>性能提升</strong>：可以将事件触发次数从数百次减少到几次，大幅提升性能</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="../vanilla-js/debounce.js"></script>
+    <script src="../vanilla-js/throttle.js"></script>
+    
+    <script>
+        // 计数器
+        let inputCount = 0;
+        let debounceCount = 0;
+        let debounceImmediateCount = 0;
+        let clickCount = 0;
+        let throttleCount = 0;
+        let throttleLeadingCount = 0;
+        let throttleTrailingCount = 0;
+        let scrollCount = 0;
+        let scrollThrottleCount = 0;
+        
+        // 防抖演示
+        const debounceInput = document.getElementById('debounce-input');
+        const debounceOutput = document.getElementById('debounce-output');
+        
+        // 普通防抖函数
+        const debouncedSearch = debounce(function(value) {
+            debounceCount++;
+            document.getElementById('debounce-count').textContent = debounceCount;
+            debounceOutput.textContent = `防抖执行：${value} (第${debounceCount}次)`;
+        }, 500);
+        
+        // 立即执行的防抖函数
+        const debouncedImmediate = debounce(function(value) {
+            debounceImmediateCount++;
+            document.getElementById('debounce-immediate-count').textContent = debounceImmediateCount;
+            console.log(`立即执行防抖：${value} (第${debounceImmediateCount}次)`);
+        }, 500, true);
+        
+        debounceInput.addEventListener('input', function(e) {
+            inputCount++;
+            document.getElementById('input-count').textContent = inputCount;
+            
+            const value = e.target.value;
+            debouncedSearch(value);
+            debouncedImmediate(value);
+        });
+        
+        // 节流演示
+        const throttleBtn = document.getElementById('throttle-btn');
+        
+        // 普通节流
+        const throttledClick = throttle(function() {
+            throttleCount++;
+            document.getElementById('throttle-count').textContent = throttleCount;
+            console.log(`节流执行：第${throttleCount}次`);
+        }, 1000);
+        
+        // leading节流
+        const throttledLeading = throttle(function() {
+            throttleLeadingCount++;
+            document.getElementById('throttle-leading-count').textContent = throttleLeadingCount;
+        }, 1000, { leading: true, trailing: false });
+        
+        // trailing节流
+        const throttledTrailing = throttle(function() {
+            throttleTrailingCount++;
+            document.getElementById('throttle-trailing-count').textContent = throttleTrailingCount;
+        }, 1000, { leading: false, trailing: true });
+        
+        throttleBtn.addEventListener('click', function() {
+            clickCount++;
+            document.getElementById('click-count').textContent = clickCount;
+            
+            throttledClick();
+            throttledLeading();
+            throttledTrailing();
+        });
+        
+        // 滚动演示
+        const scrollContainer = document.getElementById('scroll-container');
+        
+        const throttledScroll = throttle(function(e) {
+            scrollThrottleCount++;
+            document.getElementById('scroll-throttle-count').textContent = scrollThrottleCount;
+            document.getElementById('scroll-position').textContent = Math.round(e.target.scrollTop);
+        }, 100);
+        
+        scrollContainer.addEventListener('scroll', function(e) {
+            scrollCount++;
+            document.getElementById('scroll-count').textContent = scrollCount;
+            throttledScroll(e);
+        });
+        
+        // 重置函数
+        function resetDebounceCounters() {
+            inputCount = 0;
+            debounceCount = 0;
+            debounceImmediateCount = 0;
+            document.getElementById('input-count').textContent = '0';
+            document.getElementById('debounce-count').textContent = '0';
+            document.getElementById('debounce-immediate-count').textContent = '0';
+            document.getElementById('debounce-input').value = '';
+            document.getElementById('debounce-output').textContent = '';
+        }
+        
+        function resetThrottleCounters() {
+            clickCount = 0;
+            throttleCount = 0;
+            throttleLeadingCount = 0;
+            throttleTrailingCount = 0;
+            document.getElementById('click-count').textContent = '0';
+            document.getElementById('throttle-count').textContent = '0';
+            document.getElementById('throttle-leading-count').textContent = '0';
+            document.getElementById('throttle-trailing-count').textContent = '0';
+        }
+        
+        function resetScrollCounters() {
+            scrollCount = 0;
+            scrollThrottleCount = 0;
+            document.getElementById('scroll-count').textContent = '0';
+            document.getElementById('scroll-throttle-count').textContent = '0';
+            document.getElementById('scroll-position').textContent = '0';
+            scrollContainer.scrollTop = 0;
+        }
+        
+        // 页面加载提示
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('⚡ 防抖节流演示页面已加载');
+            console.log('💡 试试快速输入文字或点击按钮，观察计数器变化');
+            
+            // 添加一些使用提示
+            debounceOutput.textContent = '👆 在上方输入框中输入文字，观察防抖效果';
+        });
+    </script>
+</body>
+</html>

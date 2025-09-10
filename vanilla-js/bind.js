@@ -1,7 +1,7 @@
 /**
  * 手写实现 bind 方法
  */
-Function.prototype.myBind = function(context, args) {
+Function.prototype.myBind = function(context, ...args) {
   if (typeof this !== 'function') {
     throw 'type error';
   }
@@ -10,7 +10,7 @@ Function.prototype.myBind = function(context, args) {
   return function Fn() {
     return fn.apply(
       this instanceof Fn ? this : context,
-      args.contact(...arguments)
+      args.concat(...arguments)
     )
   };
 }

@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promise 实现演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .demo-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .demo-section h2 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+        
+        .test-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        
+        .test-button:hover {
+            background: #1e7e34;
+        }
+        
+        .test-button.primary {
+            background: #007bff;
+        }
+        
+        .test-button.primary:hover {
+            background: #0056b3;
+        }
+        
+        .test-button.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .test-button.warning:hover {
+            background: #e0a800;
+        }
+        
+        .test-button.danger {
+            background: #dc3545;
+        }
+        
+        .test-button.danger:hover {
+            background: #c82333;
+        }
+        
+        .result {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .promise-chain {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .promise-state {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 2px;
+        }
+        
+        .state-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .state-fulfilled {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .state-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .timeline {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 4px;
+            background: #f8f9fa;
+        }
+        
+        .timeline-time {
+            background: #6c757d;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-right: 10px;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .back-link {
+            display: inline-block;
+            color: #007bff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            background: #007bff;
+            color: white;
+        }
+        
+        .performance-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .performance-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+        
+        .performance-item h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← 返回首页</a>
+    
+    <div class="demo-container">
+        <h1>⚡ Promise 实现演示</h1>
+        
+        <div class="demo-section">
+            <h2>🎯 基础 Promise 测试</h2>
+            <p>测试 Promise 的基本功能：resolve、reject、then、catch</p>
+            
+            <button class="test-button" onclick="testBasicPromise()">测试基础功能</button>
+            <button class="test-button primary" onclick="testPromiseChain()">测试链式调用</button>
+            <button class="test-button warning" onclick="testAsyncResolve()">测试异步resolve</button>
+            <button class="test-button danger" onclick="testPromiseReject()">测试Promise拒绝</button>
+            
+            <div class="result" id="basic-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🔗 Promise 链式调用</h2>
+            <p>测试复杂的链式调用和错误传播</p>
+            
+            <button class="test-button" onclick="testComplexChain()">复杂链式调用</button>
+            <button class="test-button primary" onclick="testErrorPropagation()">错误传播测试</button>
+            <button class="test-button warning" onclick="testFinally()">Finally方法</button>
+            
+            <div class="promise-chain" id="chain-visualization">
+                <strong>链式调用可视化：</strong>
+                <div id="chain-steps"></div>
+            </div>
+            
+            <div class="result" id="chain-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🚀 Promise 静态方法</h2>
+            <p>测试 Promise.all、Promise.race、Promise.allSettled、Promise.any</p>
+            
+            <button class="test-button" onclick="testPromiseAll()">Promise.all</button>
+            <button class="test-button primary" onclick="testPromiseRace()">Promise.race</button>
+            <button class="test-button warning" onclick="testPromiseAllSettled()">Promise.allSettled</button>
+            <button class="test-button danger" onclick="testPromiseAny()">Promise.any</button>
+            
+            <div class="timeline" id="static-timeline"></div>
+            <div class="result" id="static-result"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>⚡ 性能对比测试</h2>
+            <p>对比原生 Promise 和自实现 MyPromise 的性能</p>
+            
+            <button class="test-button" onclick="runPerformanceTest()">运行性能测试</button>
+            
+            <div class="performance-comparison" id="performance-results"></div>
+            <div class="result" id="performance-detail"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🧪 边界情况测试</h2>
+            <p>测试各种边界情况和异常处理</p>
+            
+            <button class="test-button" onclick="testEdgeCases()">边界情况</button>
+            <button class="test-button primary" onclick="testThenable()">Thenable对象</button>
+            <button class="test-button warning" onclick="testNestedPromise()">嵌套Promise</button>
+            
+            <div class="result" id="edge-result"></div>
+        </div>
+    </div>
+
+    <script src="../vanilla-js/promise.js"></script>
+    
+    <script>
+        let testStartTime = 0;
+        let timelineContainer = null;
+        
+        // 添加时间线记录
+        function addTimelineItem(content, container = 'static-timeline') {
+            const timeline = document.getElementById(container);
+            const elapsed = Date.now() - testStartTime;
+            
+            const item = document.createElement('div');
+            item.className = 'timeline-item';
+            item.innerHTML = `
+                <div class="timeline-time">${elapsed}ms</div>
+                <div class="timeline-content">${content}</div>
+            `;
+            
+            timeline.appendChild(item);
+        }
+        
+        // 清空时间线
+        function clearTimeline(container = 'static-timeline') {
+            document.getElementById(container).innerHTML = '';
+            testStartTime = Date.now();
+        }
+        
+        // 测试基础 Promise
+        function testBasicPromise() {
+            const result = document.getElementById('basic-result');
+            
+            result.textContent = '开始测试基础 Promise 功能...\n';
+            
+            // 测试立即resolve
+            const promise1 = new MyPromise((resolve) => {
+                resolve('立即resolve');
+            });
+            
+            promise1.then(value => {
+                result.textContent += `✅ 立即resolve: ${value}\n`;
+                
+                // 测试立即reject
+                const promise2 = new MyPromise((resolve, reject) => {
+                    reject('立即reject');
+                });
+                
+                promise2.catch(error => {
+                    result.textContent += `✅ 立即reject: ${error}\n`;
+                    
+                    // 测试异步resolve
+                    const promise3 = new MyPromise((resolve) => {
+                        setTimeout(() => resolve('异步resolve'), 100);
+                    });
+                    
+                    promise3.then(value => {
+                        result.textContent += `✅ 异步resolve: ${value}\n`;
+                        result.textContent += '\n🎉 基础测试完成！';
+                    });
+                });
+            });
+            
+            // 对比原生Promise
+            result.textContent += '\n对比原生Promise:\n';
+            
+            Promise.resolve('原生resolve').then(value => {
+                result.textContent += `📝 原生Promise: ${value}\n`;
+            });
+        }
+        
+        // 测试 Promise 链
+        function testPromiseChain() {
+            const result = document.getElementById('basic-result');
+            const steps = document.getElementById('chain-steps');
+            
+            result.textContent = '开始测试 Promise 链式调用...\n';
+            steps.innerHTML = '';
+            
+            let stepCount = 0;
+            
+            function addStep(content, state = 'pending') {
+                stepCount++;
+                const step = document.createElement('div');
+                step.innerHTML = `
+                    <span class="promise-state state-${state}">步骤${stepCount}</span>
+                    ${content}
+                `;
+                steps.appendChild(step);
+                return step;
+            }
+            
+            const step1 = addStep('初始值: 1');
+            
+            new MyPromise(resolve => {
+                setTimeout(() => {
+                    step1.querySelector('.promise-state').className = 'promise-state state-fulfilled';
+                    resolve(1);
+                }, 200);
+            })
+            .then(value => {
+                const step2 = addStep(`+ 2 = ${value + 2}`, 'fulfilled');
+                result.textContent += `🔗 第一步: ${value} + 2 = ${value + 2}\n`;
+                return value + 2;
+            })
+            .then(value => {
+                const step3 = addStep(`× 3 = ${value * 3}`, 'fulfilled');
+                result.textContent += `🔗 第二步: ${value} × 3 = ${value * 3}\n`;
+                return value * 3;
+            })
+            .then(value => {
+                const step4 = addStep(`最终结果: ${value}`, 'fulfilled');
+                result.textContent += `🎯 最终结果: ${value}\n`;
+                result.textContent += '\n✅ 链式调用测试完成！';
+            })
+            .catch(error => {
+                result.textContent += `❌ 链式调用失败: ${error}\n`;
+            });
+        }
+        
+        // 测试异步resolve
+        function testAsyncResolve() {
+            const result = document.getElementById('basic-result');
+            
+            result.textContent = '测试异步resolve模式...\n';
+            
+            const delays = [100, 300, 500];
+            let completed = 0;
+            
+            delays.forEach((delay, index) => {
+                const promise = new MyPromise(resolve => {
+                    setTimeout(() => {
+                        resolve(`异步任务${index + 1}完成 (${delay}ms)`);
+                    }, delay);
+                });
+                
+                promise.then(value => {
+                    completed++;
+                    result.textContent += `✅ ${value}\n`;
+                    
+                    if (completed === delays.length) {
+                        result.textContent += '\n🎉 所有异步任务完成！';
+                    }
+                });
+            });
+        }
+        
+        // 测试Promise拒绝
+        function testPromiseReject() {
+            const result = document.getElementById('basic-result');
+            
+            result.textContent = '测试Promise拒绝和错误处理...\n';
+            
+            // 测试同步reject
+            new MyPromise((resolve, reject) => {
+                reject(new Error('同步错误'));
+            })
+            .catch(error => {
+                result.textContent += `✅ 捕获同步错误: ${error.message}\n`;
+                
+                // 测试异步reject
+                return new MyPromise((resolve, reject) => {
+                    setTimeout(() => {
+                        reject(new Error('异步错误'));
+                    }, 100);
+                });
+            })
+            .catch(error => {
+                result.textContent += `✅ 捕获异步错误: ${error.message}\n`;
+                
+                // 测试错误恢复
+                return '错误已恢复';
+            })
+            .then(value => {
+                result.textContent += `✅ 错误恢复: ${value}\n`;
+                result.textContent += '\n🎉 错误处理测试完成！';
+            });
+        }
+        
+        // 测试复杂链式调用
+        function testComplexChain() {
+            const result = document.getElementById('chain-result');
+            
+            result.textContent = '开始复杂链式调用测试...\n';
+            
+            new MyPromise(resolve => {
+                setTimeout(() => resolve(10), 100);
+            })
+            .then(value => {
+                result.textContent += `🔗 初始值: ${value}\n`;
+                if (value > 5) {
+                    return new MyPromise(resolve => {
+                        setTimeout(() => resolve(value * 2), 100);
+                    });
+                }
+                return value;
+            })
+            .then(value => {
+                result.textContent += `🔗 条件处理后: ${value}\n`;
+                // 抛出错误测试
+                if (value > 15) {
+                    throw new Error(`值太大: ${value}`);
+                }
+                return value;
+            })
+            .catch(error => {
+                result.textContent += `⚠️ 捕获错误: ${error.message}\n`;
+                return 5; // 恢复
+            })
+            .then(value => {
+                result.textContent += `🔗 恢复后: ${value}\n`;
+                return Promise.resolve(value + 1); // 混合原生Promise
+            })
+            .then(value => {
+                result.textContent += `🎯 最终值: ${value}\n`;
+                result.textContent += '\n✅ 复杂链式调用完成！';
+            });
+        }
+        
+        // 测试错误传播
+        function testErrorPropagation() {
+            const result = document.getElementById('chain-result');
+            
+            result.textContent = '测试错误传播机制...\n';
+            
+            new MyPromise(resolve => {
+                resolve('正常开始');
+            })
+            .then(value => {
+                result.textContent += `✅ 步骤1: ${value}\n`;
+                throw new Error('中间出错');
+            })
+            .then(value => {
+                // 这里不应该执行
+                result.textContent += `❌ 不应该执行: ${value}\n`;
+                return value;
+            })
+            .catch(error => {
+                result.textContent += `🚨 捕获错误: ${error.message}\n`;
+                return '错误已处理';
+            })
+            .then(value => {
+                result.textContent += `✅ 继续执行: ${value}\n`;
+                result.textContent += '\n🎉 错误传播测试完成！';
+            });
+        }
+        
+        // 测试Finally
+        function testFinally() {
+            const result = document.getElementById('chain-result');
+            
+            result.textContent = '测试Finally方法...\n';
+            
+            // 成功情况
+            new MyPromise(resolve => {
+                setTimeout(() => resolve('成功结果'), 100);
+            })
+            .then(value => {
+                result.textContent += `✅ 成功: ${value}\n`;
+                return value;
+            })
+            .finally(() => {
+                result.textContent += `🏁 Finally(成功): 清理工作\n`;
+            })
+            .then(value => {
+                result.textContent += `✅ 继续: ${value}\n`;
+                
+                // 测试失败情况
+                return new MyPromise((resolve, reject) => {
+                    setTimeout(() => reject(new Error('失败结果')), 100);
+                });
+            })
+            .catch(error => {
+                result.textContent += `❌ 失败: ${error.message}\n`;
+                throw error;
+            })
+            .finally(() => {
+                result.textContent += `🏁 Finally(失败): 清理工作\n`;
+            })
+            .catch(error => {
+                result.textContent += `🎯 最终捕获: ${error.message}\n`;
+                result.textContent += '\n✅ Finally测试完成！';
+            });
+        }
+        
+        // 测试Promise.all
+        function testPromiseAll() {
+            const result = document.getElementById('static-result');
+            clearTimeline();
+            
+            result.textContent = '测试 Promise.all...\n';
+            addTimelineItem('开始 Promise.all 测试');
+            
+            const promises = [
+                new MyPromise(resolve => {
+                    setTimeout(() => {
+                        addTimelineItem('Promise 1 完成');
+                        resolve('结果1');
+                    }, 200);
+                }),
+                new MyPromise(resolve => {
+                    setTimeout(() => {
+                        addTimelineItem('Promise 2 完成');
+                        resolve('结果2');
+                    }, 100);
+                }),
+                new MyPromise(resolve => {
+                    setTimeout(() => {
+                        addTimelineItem('Promise 3 完成');
+                        resolve('结果3');
+                    }, 300);
+                })
+            ];
+            
+            MyPromise.all(promises)
+                .then(results => {
+                    addTimelineItem('Promise.all 完成');
+                    result.textContent += `✅ 所有Promise完成: [${results.join(', ')}]\n`;
+                    result.textContent += `⏱️ 总用时: 约300ms (等待最慢的)\n`;
+                    result.textContent += '\n🎉 Promise.all 测试完成！';
+                })
+                .catch(error => {
+                    result.textContent += `❌ Promise.all 失败: ${error}\n`;
+                });
+        }
+        
+        // 测试Promise.race
+        function testPromiseRace() {
+            const result = document.getElementById('static-result');
+            clearTimeline();
+            
+            result.textContent = '测试 Promise.race...\n';
+            addTimelineItem('开始 Promise.race 测试');
+            
+            const promises = [
+                new MyPromise(resolve => {
+                    setTimeout(() => {
+                        addTimelineItem('Promise 1 完成 (慢)');
+                        resolve('慢速结果');
+                    }, 300);
+                }),
+                new MyPromise(resolve => {
+                    setTimeout(() => {
+                        addTimelineItem('Promise 2 完成 (快)');
+                        resolve('快速结果');
+                    }, 100);
+                }),
+                new MyPromise(resolve => {
+                    setTimeout(() => {
+                        addTimelineItem('Promise 3 完成 (中等)');
+                        resolve('中等结果');
+                    }, 200);
+                })
+            ];
+            
+            MyPromise.race(promises)
+                .then(result => {
+                    addTimelineItem('Promise.race 完成');
+                    result.textContent += `🏃 最快完成: ${result}\n`;
+                    result.textContent += `⏱️ 用时: 约100ms (最快的)\n`;
+                    result.textContent += '\n🎉 Promise.race 测试完成！';
+                });
+        }
+        
+        // 测试Promise.allSettled
+        function testPromiseAllSettled() {
+            const result = document.getElementById('static-result');
+            clearTimeline();
+            
+            result.textContent = '测试 Promise.allSettled...\n';
+            addTimelineItem('开始 Promise.allSettled 测试');
+            
+            const promises = [
+                new MyPromise(resolve => {
+                    setTimeout(() => {
+                        addTimelineItem('Promise 1 成功');
+                        resolve('成功1');
+                    }, 100);
+                }),
+                new MyPromise((resolve, reject) => {
+                    setTimeout(() => {
+                        addTimelineItem('Promise 2 失败');
+                        reject(new Error('失败2'));
+                    }, 200);
+                }),
+                new MyPromise(resolve => {
+                    setTimeout(() => {
+                        addTimelineItem('Promise 3 成功');
+                        resolve('成功3');
+                    }, 150);
+                })
+            ];
+            
+            MyPromise.allSettled(promises)
+                .then(results => {
+                    addTimelineItem('Promise.allSettled 完成');
+                    result.textContent += '📊 所有Promise已处理:\n';
+                    results.forEach((item, index) => {
+                        if (item.status === 'fulfilled') {
+                            result.textContent += `  ✅ Promise ${index + 1}: ${item.value}\n`;
+                        } else {
+                            result.textContent += `  ❌ Promise ${index + 1}: ${item.reason.message}\n`;
+                        }
+                    });
+                    result.textContent += '\n🎉 Promise.allSettled 测试完成！';
+                });
+        }
+        
+        // 测试Promise.any
+        function testPromiseAny() {
+            const result = document.getElementById('static-result');
+            clearTimeline();
+            
+            result.textContent = '测试 Promise.any...\n';
+            addTimelineItem('开始 Promise.any 测试');
+            
+            const promises = [
+                new MyPromise((resolve, reject) => {
+                    setTimeout(() => {
+                        addTimelineItem('Promise 1 失败');
+                        reject(new Error('失败1'));
+                    }, 100);
+                }),
+                new MyPromise(resolve => {
+                    setTimeout(() => {
+                        addTimelineItem('Promise 2 成功');
+                        resolve('成功2');
+                    }, 200);
+                }),
+                new MyPromise((resolve, reject) => {
+                    setTimeout(() => {
+                        addTimelineItem('Promise 3 失败');
+                        reject(new Error('失败3'));
+                    }, 150);
+                })
+            ];
+            
+            MyPromise.any(promises)
+                .then(value => {
+                    addTimelineItem('Promise.any 完成');
+                    result.textContent += `🎯 首个成功: ${value}\n`;
+                    result.textContent += `⏱️ 用时: 约200ms (首个成功的)\n`;
+                    result.textContent += '\n🎉 Promise.any 测试完成！';
+                })
+                .catch(error => {
+                    result.textContent += `❌ 所有Promise都失败: ${error}\n`;
+                });
+        }
+        
+        // 性能测试
+        function runPerformanceTest() {
+            const results = document.getElementById('performance-results');
+            const detail = document.getElementById('performance-detail');
+            
+            detail.textContent = '开始性能测试...\n';
+            
+            const iterations = 10000;
+            
+            // 测试原生Promise
+            const nativeStart = performance.now();
+            let nativePromises = [];
+            
+            for (let i = 0; i < iterations; i++) {
+                nativePromises.push(
+                    Promise.resolve(i).then(x => x * 2)
+                );
+            }
+            
+            Promise.all(nativePromises).then(() => {
+                const nativeTime = performance.now() - nativeStart;
+                
+                // 测试MyPromise
+                const myStart = performance.now();
+                let myPromises = [];
+                
+                for (let i = 0; i < iterations; i++) {
+                    myPromises.push(
+                        MyPromise.resolve(i).then(x => x * 2)
+                    );
+                }
+                
+                MyPromise.all(myPromises).then(() => {
+                    const myTime = performance.now() - myStart;
+                    
+                    results.innerHTML = `
+                        <div class="performance-item">
+                            <h4>原生 Promise</h4>
+                            <div><strong>${Math.round(nativeTime)}ms</strong></div>
+                            <div>基准性能</div>
+                        </div>
+                        <div class="performance-item">
+                            <h4>MyPromise</h4>
+                            <div><strong>${Math.round(myTime)}ms</strong></div>
+                            <div>${Math.round(myTime / nativeTime * 100)}% 相对性能</div>
+                        </div>
+                    `;
+                    
+                    detail.textContent += `⚡ 性能测试结果 (${iterations} 次迭代):\n`;
+                    detail.textContent += `📊 原生Promise: ${Math.round(nativeTime)}ms\n`;
+                    detail.textContent += `📊 MyPromise: ${Math.round(myTime)}ms\n`;
+                    detail.textContent += `📈 性能比例: ${Math.round(myTime / nativeTime * 100)}%\n`;
+                    detail.textContent += `\n💡 分析:\n`;
+                    detail.textContent += `- MyPromise 是学习实现，性能略低于原生实现\n`;
+                    detail.textContent += `- 主要差异来自于调度和优化策略\n`;
+                    detail.textContent += `- 功能完整性比性能更重要`;
+                });
+            });
+        }
+        
+        // 边界情况测试
+        function testEdgeCases() {
+            const result = document.getElementById('edge-result');
+            
+            result.textContent = '测试边界情况...\n';
+            
+            // 测试多次resolve
+            new MyPromise(resolve => {
+                resolve('第一次');
+                resolve('第二次'); // 应该被忽略
+            })
+            .then(value => {
+                result.textContent += `✅ 多次resolve: ${value} (应该是"第一次")\n`;
+                
+                // 测试resolve后reject
+                return new MyPromise((resolve, reject) => {
+                    resolve('已解决');
+                    reject('后续拒绝'); // 应该被忽略
+                });
+            })
+            .then(value => {
+                result.textContent += `✅ resolve后reject: ${value}\n`;
+                
+                // 测试空Promise
+                return new MyPromise(() => {
+                    // 永远不调用resolve或reject
+                });
+            })
+            .then(value => {
+                result.textContent += `❌ 这行不应该执行\n`;
+            });
+            
+            // 测试立即执行
+            setTimeout(() => {
+                result.textContent += `⏱️ 空Promise保持pending状态\n`;
+                result.textContent += '\n✅ 边界情况测试完成！';
+            }, 500);
+        }
+        
+        // 测试Thenable对象
+        function testThenable() {
+            const result = document.getElementById('edge-result');
+            
+            result.textContent = '测试Thenable对象...\n';
+            
+            // 创建thenable对象
+            const thenable = {
+                then(onFulfilled, onRejected) {
+                    setTimeout(() => {
+                        onFulfilled('thenable结果');
+                    }, 100);
+                }
+            };
+            
+            MyPromise.resolve(thenable)
+                .then(value => {
+                    result.textContent += `✅ Thenable对象: ${value}\n`;
+                    
+                    // 测试带有then方法的普通对象
+                    const fakeThen = {
+                        then: 'not a function'
+                    };
+                    
+                    return MyPromise.resolve(fakeThen);
+                })
+                .then(value => {
+                    result.textContent += `✅ 非函数then: ${JSON.stringify(value)}\n`;
+                    result.textContent += '\n🎉 Thenable测试完成！';
+                });
+        }
+        
+        // 测试嵌套Promise
+        function testNestedPromise() {
+            const result = document.getElementById('edge-result');
+            
+            result.textContent = '测试嵌套Promise...\n';
+            
+            new MyPromise(resolve => {
+                resolve(
+                    new MyPromise(innerResolve => {
+                        setTimeout(() => {
+                            innerResolve('内部Promise结果');
+                        }, 100);
+                    })
+                );
+            })
+            .then(value => {
+                result.textContent += `✅ 嵌套Promise: ${value}\n`;
+                
+                // 测试多层嵌套
+                return new MyPromise(resolve => {
+                    resolve(
+                        new MyPromise(innerResolve => {
+                            innerResolve(
+                                new MyPromise(deepResolve => {
+                                    setTimeout(() => {
+                                        deepResolve('深层嵌套结果');
+                                    }, 100);
+                                })
+                            );
+                        })
+                    );
+                });
+            })
+            .then(value => {
+                result.textContent += `✅ 多层嵌套: ${value}\n`;
+                result.textContent += '\n🎉 嵌套Promise测试完成！';
+            });
+        }
+        
+        // 页面加载提示
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('⚡ Promise演示页面已加载');
+            console.log('💡 点击测试按钮查看Promise实现的各种效果');
+            
+            // 添加说明
+            document.querySelector('.demo-container').insertAdjacentHTML('afterbegin', `
+                <div style="background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                    <strong>💡 演示说明：</strong>
+                    本演示展示了完整的Promise实现，包括基础功能、链式调用、静态方法和边界情况处理。
+                    你可以看到MyPromise与原生Promise的行为对比，以及详细的执行时间线。
+                </div>
+            `);
+        });
+    </script>
+</body>
+</html>
