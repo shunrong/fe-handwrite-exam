@@ -1,122 +1,117 @@
 /**
- * 手写 throttle 节流函数 - 完整版
+ * 手写 throttle 节流函数 - 现代简化版
+ * 
+ * 核心原理：限制执行频率，固定时间间隔执行
+ * - 立即模式：第一次调用立即执行
+ * - 延迟模式：等待间隔后执行
+ * - 有定时器时拒绝执行，无定时器时开启新轮次
+ * 
+ * @param {Function} fn 要节流的函数
+ * @param {Object} options 配置选项
+ * @param {number} options.wait 时间间隔，默认 500ms
+ * @param {boolean} options.immediate 是否立即执行，默认 false
+ * @returns {Function} 节流后的函数
  */
-
-// 1. 时间戳方案（第一次立即执行，最后一次可能不执行）
-function throttleTimestamp(fn, wait) {
-  let previous = 0;
-  return function throttled(...args) {
-    const context = this;
-    const now = Date.now();
-    
-    if (now - previous >= wait) {
-      previous = now;
-      return fn.apply(context, args);
-    }
-  };
-}
-
-// 2. 定时器方案（第一次延迟执行，最后一次一定执行）
-function throttleTimer(fn, wait) {
+const throttle = (fn, options = {}) => {
+  const { wait = 500, immediate = false } = options;
   let timer = null;
-  return function throttled(...args) {
-    const context = this;
-    
-    if (!timer) {
-      timer = setTimeout(() => {
-        fn.apply(context, args);
-        timer = null;
-      }, wait);
-    }
-  };
-}
-
-// 3. 完整版节流（结合时间戳和定时器，首次和末次都执行）
-function throttle(fn, wait, options = {}) {
-  let timer = null;
-  let previous = 0;
   
-  const { leading = true, trailing = true } = options;
-  
-  return function throttled(...args) {
-    const context = this;
-    const now = Date.now();
+  // 返回的函数必须用 function，保持 this 绑定
+  return function(...args) {
+    // 核心：有定时器就拒绝执行
+    if (timer) return;
     
-    // 如果不需要首次执行，重置 previous
-    if (!previous && !leading) {
-      previous = now;
-    }
-    
-    // 距离下次执行的剩余时间
-    const remaining = wait - (now - previous);
-    
-    if (remaining <= 0 || remaining > wait) {
-      // 可以执行
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
+    timer = setTimeout(() => {
+      // 延迟模式：间隔结束时执行
+      if (!immediate) {
+        fn.apply(this, args);
       }
-      previous = now;
-      fn.apply(context, args);
-    } else if (!timer && trailing) {
-      // 设置定时器，保证最后一次执行
-      timer = setTimeout(() => {
-        previous = leading ? Date.now() : 0;
-        timer = null;
-        fn.apply(context, args);
-      }, remaining);
+      timer = null;  // 重置状态，开放下次执行
+    }, wait);
+    
+    // 立即模式：间隔开始时执行
+    if (immediate) {
+      return fn.apply(this, args);
     }
   };
-}
+};
 
-// 4. 带取消功能的节流
-function throttleWithCancel(fn, wait, options = {}) {
+// 带取消功能的节流 - 增强版
+const throttleWithCancel = (fn, options = {}) => {
+  const { wait = 500, immediate = false } = options;
   let timer = null;
-  let previous = 0;
   
-  const { leading = true, trailing = true } = options;
-  
-  function throttled(...args) {
-    const context = this;
-    const now = Date.now();
+  const throttled = function(...args) {
+    if (timer) return;
     
-    if (!previous && !leading) {
-      previous = now;
-    }
-    
-    const remaining = wait - (now - previous);
-    
-    if (remaining <= 0 || remaining > wait) {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
+    timer = setTimeout(() => {
+      if (!immediate) {
+        fn.apply(this, args);
       }
-      previous = now;
-      fn.apply(context, args);
-    } else if (!timer && trailing) {
-      timer = setTimeout(() => {
-        previous = leading ? Date.now() : 0;
-        timer = null;
-        fn.apply(context, args);
-      }, remaining);
+      timer = null;
+    }, wait);
+    
+    if (immediate) {
+      return fn.apply(this, args);
     }
-  }
+  };
   
   // 取消节流
-  throttled.cancel = function() {
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
-    previous = 0;
+  throttled.cancel = () => {
+    clearTimeout(timer);
+    timer = null;
+  };
+  
+  // 立即执行（跳过节流）
+  throttled.flush = function(...args) {
+    clearTimeout(timer);
+    timer = null;
+    return fn.apply(this, args);
   };
   
   return throttled;
-}
+};
 
-// test
-const resizeCb = function (event) {
-  console.log(event);
-}
-// window.addEventListener('mousemove', resizeCb);
-window.addEventListener('mousemove', throttle(resizeCb, 500));
+// 时间戳版本（备选方案）- 适合需要精确时间控制的场景
+const throttleTimestamp = (fn, wait) => {
+  let previous = 0;
+  
+  return function(...args) {
+    const now = Date.now();
+    if (now - previous >= wait) {
+      previous = now;
+      return fn.apply(this, args);
+    }
+  };
+};
+
+// ===== 使用示例 =====
+
+// 滚动性能优化
+const handleScroll = function() {
+  console.log('更新导航栏状态');
+};
+// 立即模式：滚动立即响应，每 100ms 最多执行一次
+window.addEventListener('scroll', throttle(handleScroll, { wait: 100, immediate: true }));
+
+// 鼠标移动事件
+const handleMouseMove = function(e) {
+  console.log('鼠标位置:', e.clientX, e.clientY);
+};
+// 延迟模式：每 50ms 最多执行一次
+document.addEventListener('mousemove', throttle(handleMouseMove, { wait: 50 }));
+
+// 按钮防抖点击
+const handleButtonClick = function() {
+  console.log('API 请求');
+};
+// 立即模式：第一次点击立即执行，1秒内忽略后续点击
+document.getElementById('api-btn')?.addEventListener('click', 
+  throttle(handleButtonClick, { wait: 1000, immediate: true }));
+
+// 窗口缩放节流
+const handleResize = function() {
+  console.log('重新计算布局大小');
+};
+// 使用时间戳版本，精确控制间隔
+window.addEventListener('resize', throttleTimestamp(handleResize, 200));

@@ -1,98 +1,254 @@
 /**
- * 手写发布订阅模式 (EventEmitter) - 前端面试必考
+ * 手写发布订阅模式 (EventEmitter) - 现代优化版
  * 
- * 发布订阅模式：定义对象间一对多的依赖关系，当一个对象状态改变时，
- * 所有依赖它的对象都会收到通知并自动更新
+ * 核心原理：事件总线（EventBus）模式
+ * - 订阅：on/once - 向事件回调数组添加函数
+ * - 发布：emit - 遍历执行事件回调数组
+ * - 取消：off - 从事件回调数组移除函数（引用比较）
+ * 
+ * 关键技术点：
+ * 1. 使用 Map 替代 Object - 更优雅的哈希表
+ * 2. 引用比较 - 确保 off 时能正确移除
+ * 3. 链式调用 - 提升 API 易用性
+ * 4. 内存管理 - 自动清理空事件
+ * 5. once 包装器 - 执行后自我销毁
  */
 
-// 1. 基础版本 EventEmitter
+// 1. 现代版本 EventEmitter - 基于复习优化
 class EventEmitter {
   constructor() {
-    // 存储事件和对应的监听器
-    this.events = {};
+    // 使用 Map 替代 Object：支持任意类型 key，迭代友好
+    this.events = new Map();
   }
 
   // 订阅事件
-  on(eventName, listener) {
-    if (typeof listener !== 'function') {
-      throw new TypeError('listener must be a function');
+  on(eventName, callback) {
+    if (typeof callback !== 'function') {
+      throw new TypeError('Callback must be a function');
     }
 
-    if (!this.events[eventName]) {
-      this.events[eventName] = [];
+    // 懒初始化：事件不存在时创建数组
+    if (!this.events.has(eventName)) {
+      this.events.set(eventName, []);
     }
 
-    this.events[eventName].push(listener);
+    // 关键：直接 push，利用数组引用可变性
+    this.events.get(eventName).push(callback);
+    
+    // 检查监听器数量，防止内存泄漏
+    this._checkMaxListeners(eventName);
+    
     return this; // 支持链式调用
   }
 
   // 发布事件
   emit(eventName, ...args) {
-    const listeners = this.events[eventName];
+    const callbacks = this.events.get(eventName);
     
-    if (!listeners || listeners.length === 0) {
+    // 快速检查：没有监听器直接返回
+    if (!callbacks || callbacks.length === 0) {
       return false;
     }
 
-    // 执行所有监听器
-    listeners.forEach(listener => {
+    // 执行所有回调函数，支持多参数传递
+    callbacks.forEach(callback => {
       try {
-        listener.apply(this, args);
+        callback(...args); // 透传所有参数
       } catch (error) {
-        console.error('Error in event listener:', error);
+        console.error(`Error in ${eventName} listener:`, error);
       }
     });
 
-    return true;
+    return true; // 返回执行结果，不支持链式（语义不同）
   }
 
   // 取消订阅
-  off(eventName, listener) {
-    if (!this.events[eventName]) {
-      return this;
+  off(eventName, callback) {
+    if (!this.events.has(eventName)) {
+      return this; // 事件不存在也返回 this
     }
 
-    if (!listener) {
-      // 如果没有指定监听器，删除所有
-      delete this.events[eventName];
+    if (!callback) {
+      // 模式1：移除事件的所有监听器
+      this.events.delete(eventName);
     } else {
-      // 删除指定监听器
-      this.events[eventName] = this.events[eventName].filter(l => l !== listener);
+      // 模式2：移除指定监听器（关键：引用比较）
+      const callbacks = this.events.get(eventName);
+      const index = callbacks.indexOf(callback); // 使用 === 比较引用
       
-      // 如果没有监听器了，删除事件
-      if (this.events[eventName].length === 0) {
-        delete this.events[eventName];
+      if (index > -1) {
+        callbacks.splice(index, 1);
+        
+        // 内存管理：如果回调数组为空，删除整个事件
+        if (callbacks.length === 0) {
+          this.events.delete(eventName);
+        }
       }
     }
 
-    return this;
+    return this; // 支持链式调用
   }
 
-  // 只订阅一次
-  once(eventName, listener) {
-    if (typeof listener !== 'function') {
-      throw new TypeError('listener must be a function');
+  // 一次性订阅
+  once(eventName, callback) {
+    if (typeof callback !== 'function') {
+      throw new TypeError('Callback must be a function');
     }
 
-    const onceWrapper = (...args) => {
-      listener.apply(this, args);
-      this.off(eventName, onceWrapper);
+    // 包装器模式：执行后自我销毁
+    const wrapper = (...args) => {
+      callback(...args);           // 先执行原回调
+      this.off(eventName, wrapper); // 再移除包装器（关键：引用相同）
     };
 
-    this.on(eventName, onceWrapper);
-    return this;
+    this.on(eventName, wrapper);
+    return this; // 支持链式调用
   }
 
   // 获取事件的监听器数量
   listenerCount(eventName) {
-    return this.events[eventName] ? this.events[eventName].length : 0;
+    const callbacks = this.events.get(eventName);
+    return callbacks ? callbacks.length : 0;
   }
 
-  // 获取所有事件名称
+  // 获取所有事件名
   eventNames() {
-    return Object.keys(this.events);
+    return Array.from(this.events.keys());
+  }
+
+  // 清空所有事件
+  removeAllListeners(eventName) {
+    if (eventName) {
+      this.events.delete(eventName);
+    } else {
+      this.events.clear();
+    }
+    return this;
+  }
+
+  // 设置最大监听器数量（防止内存泄漏）
+  setMaxListeners(n) {
+    this.maxListeners = n;
+    return this;
+  }
+
+  // 在 on 方法中添加监听器数量检查
+  _checkMaxListeners(eventName) {
+    if (this.maxListeners && this.listenerCount(eventName) >= this.maxListeners) {
+      console.warn(`MaxListenersExceededWarning: Possible EventEmitter memory leak detected. ${this.listenerCount(eventName)} ${eventName} listeners added.`);
+    }
   }
 }
+
+// ===== 现代化使用示例 =====
+
+// 全局事件总线
+const eventBus = new EventEmitter();
+
+// React 组件通信示例
+class ComponentCommunication {
+  static setupExample() {
+    console.log('=== React 组件通信示例 ===');
+    
+    // 组件A：数据提供者
+    const ComponentA = {
+      updateUserData(userData) {
+        console.log('ComponentA: 用户数据更新');
+        eventBus.emit('userDataChanged', userData);
+      }
+    };
+    
+    // 组件B：数据消费者
+    const ComponentB = {
+      init() {
+        // 正确：保持函数引用稳定，便于后续移除
+        this.handleUserChange = (userData) => {
+          console.log('ComponentB: 收到用户数据', userData);
+        };
+        
+        eventBus.on('userDataChanged', this.handleUserChange);
+      },
+      
+      destroy() {
+        // 关键：使用相同的引用才能正确移除
+        eventBus.off('userDataChanged', this.handleUserChange);
+      }
+    };
+    
+    // 组件C：一次性监听
+    const ComponentC = {
+      init() {
+        eventBus.once('userDataChanged', (userData) => {
+          console.log('ComponentC: 只监听一次', userData);
+        });
+      }
+    };
+    
+    // 模拟组件生命周期
+    ComponentB.init();
+    ComponentC.init();
+    
+    // 触发数据更新
+    ComponentA.updateUserData({ name: 'Tom', age: 25 });
+    ComponentA.updateUserData({ name: 'Jerry', age: 23 }); // C不会收到
+    
+    // 组件销毁
+    ComponentB.destroy();
+  }
+}
+
+// 链式调用示例
+class ChainExample {
+  static setupExample() {
+    console.log('\n=== 链式调用示例 ===');
+    
+    const emitter = new EventEmitter()
+      .on('login', (user) => console.log('用户登录:', user.name))
+      .on('logout', () => console.log('用户登出'))
+      .once('init', () => console.log('应用初始化'))
+      .setMaxListeners(5);
+    
+    // 发布事件
+    emitter.emit('init');
+    emitter.emit('login', { name: 'Alice' });
+    emitter.emit('logout');
+    emitter.emit('init'); // once 只执行一次，不会输出
+  }
+}
+
+// 内存管理示例
+class MemoryManagementExample {
+  static setupExample() {
+    console.log('\n=== 内存管理示例 ===');
+    
+    const emitter = new EventEmitter();
+    
+    // 添加多个监听器
+    const handler1 = () => console.log('handler1');
+    const handler2 = () => console.log('handler2');
+    const handler3 = () => console.log('handler3');
+    
+    emitter.on('test', handler1);
+    emitter.on('test', handler2);
+    emitter.on('test', handler3);
+    
+    console.log('监听器数量:', emitter.listenerCount('test')); // 3
+    console.log('所有事件:', emitter.eventNames()); // ['test']
+    
+    // 移除指定监听器
+    emitter.off('test', handler2);
+    console.log('移除后数量:', emitter.listenerCount('test')); // 2
+    
+    // 移除所有监听器
+    emitter.off('test');
+    console.log('清空后数量:', emitter.listenerCount('test')); // 0
+  }
+}
+
+// 执行示例
+ComponentCommunication.setupExample();
+ChainExample.setupExample();
+MemoryManagementExample.setupExample();
 
 // 2. 增强版本 - 支持更多特性
 class AdvancedEventEmitter extends EventEmitter {
